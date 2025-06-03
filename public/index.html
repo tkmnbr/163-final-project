@@ -37,14 +37,39 @@
     <!-- Scene 4: Explore Mode -->
     <section id="scene4" class="scene">
       <h2>Scene 4: Explore Mode</h2>
-      <p>Interactively filter data by year, state, and metrics to explore details.</p>
+      <p>Interactively filter data by year, state, and metric to explore details.</p>
+
       <div id="controls">
-        <!-- Place filter UI elements here -->
+        <!-- Year selector -->
+        <div class="control-group">
+          <label for="explore-year">Year:</label>
+          <select id="explore-year"></select>
+        </div>
+
+        <!-- State selector -->
+        <div class="control-group">
+          <label for="explore-state">State:</label>
+          <select id="explore-state"></select>
+        </div>
+
+        <!-- Metric selector (e.g., Offender Count, Victim Count, etc.) -->
+        <div class="control-group">
+          <label for="explore-metric">Metric:</label>
+          <select id="explore-metric">
+            <option value="offender_sex">Offender Count by Sex</option>
+            <option value="victim_sex">Victim Count by Sex</option>
+            <!-- Add more metrics as needed -->
+          </select>
+        </div>
       </div>
+
+      <!-- Visualization container -->
       <div id="explore-vis">
-        <!-- Render dynamic visualizations here -->
+        <!-- Depending on selection, we will render line chart, parallel coords, or sankey -->
+        <svg id="explore-chart" width="800" height="400"></svg>
       </div>
     </section>
+
   </main>
 
   <script type="module" src="./src/main.js"></script>

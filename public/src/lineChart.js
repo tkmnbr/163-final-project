@@ -1,74 +1,77 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
 /**
- * Draws a line chart showing offender count trends.
- * @param {string} selector - CSS selector for the SVG element.
+ * Draws a line chart of offender/victim counts.
+ * @param {string} selector - CSS selector for the SVG element
+ * @param {number} yearFilter - specific year to highlight (optional)
+ * @param {string} stateFilter - specific state code to filter data (optional)
+ * @param {string} type - either \"offender\" or \"victim\" (default: \"offender\")
  */
-export async function drawLineChart(selector) {
-  // Load the CSV data containing offender sex trends
-  const data = await d3.csv("processed/offender_sex_trends.csv", d => ({
-    year : d3.timeParse("%Y")(d.year),      
-    count: +d.total_offender_count          
+export async function drawLineChart(selector, yearFilter = null, stateFilter = null, type = "offender") {
+  // Load CSV corresponding to type
+  const fileName = type === "victim"
+    ? "processed/victim_sex_trends.csv"
+    : "processed/offender_sex_trends.csv";
+
+  const raw = await d3.csv(fileName, d => ({
+    year: +d.year,
+    count: +d.total_offender_count  
   }));
 
-  // Configure SVG dimensions and margins
+  // If a specific yearFilter is provided, filter the data
+  let data = raw;
+  if (yearFilter !== null) {
+    data = raw.filter(d => d.year === yearFilter);
+  }
+
+  // Convert year to Date object for D3 scale
+  data = data.map(d => ({ year: d3.timeParse("%Y")(String(d.year)), count: d.count }));
+
+  // Setup SVG and margins
   const svg = d3.select(selector);
   const margin = { top: 50, right: 30, bottom: 50, left: 80 };
-  const width  = +svg.attr("width")  - margin.left - margin.right;
-  const height = +svg.attr("height") - margin.top  - margin.bottom;
+  const width = +svg.attr("width") - margin.left - margin.right;
+  const height = +svg.attr("height") - margin.top - margin.bottom;
 
-  // Add a chart title
+  // Add title
   svg.append("text")
      .attr("x", margin.left + width / 2)
      .attr("y", margin.top / 2)
      .attr("text-anchor", "middle")
      .attr("font-size", "20px")
-     .text("Offender Count Trends (2010–2023)");
+     .text(type === "victim" ? "Victim Count Trends" : "Offender Count Trends");
 
-  // Create a group element for margins
-  const g = svg.append("g")
-               .attr("transform", `translate(${margin.left},${margin.top})`);
+  // Create group for drawing area
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // Define scales for x and y axes
-  const x = d3.scaleTime()
-              .domain(d3.extent(data, d => d.year))
-              .range([0, width]);
-  const y = d3.scaleLinear()
-              .domain([0, d3.max(data, d => d.count)]).nice()
-              .range([height, 0]);
+  // Define scales
+  const x = d3.scaleTime().domain(d3.extent(data, d => d.year)).range([0, width]);
+  const y = d3.scaleLinear().domain([0, d3.max(data, d => d.count)]).nice().range([height, 0]);
 
-  // Add x-axis to the chart
+  // Draw axes
   g.append("g")
    .attr("transform", `translate(0,${height})`)
-   .call(d3.axisBottom(x).ticks(data.length).tickFormat(d3.timeFormat("%Y")))
+   .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%Y")))
    .selectAll("text")
      .attr("text-anchor", "end")
      .attr("transform", "rotate(-45)");
+  g.append("g").call(d3.axisLeft(y));
 
-  // Add y-axis to the chart
-  g.append("g")
-   .call(d3.axisLeft(y));
-
-  // Add x-axis label
+  // Axis labels
   g.append("text")
-   .attr("x", width / 2)
+   .attr("x", width/2)
    .attr("y", height + margin.bottom - 5)
    .attr("text-anchor", "middle")
    .attr("font-size", "12px")
    .text("Year");
-
-  // Add y-axis label (rotated)
   g.append("text")
    .attr("transform", `translate(${-margin.left + 20},${height/2}) rotate(-90)`)
    .attr("text-anchor", "middle")
    .attr("font-size", "12px")
-   .text("Offender Count");
+   .text(type === "victim" ? "Victim Count" : "Offender Count");
 
-  // Generate and draw the line path
-  const line = d3.line()
-                 .x(d => x(d.year))
-                 .y(d => y(d.count));
-
+  // Draw line
+  const line = d3.line().x(d => x(d.year)).y(d => y(d.count));
   g.append("path")
    .datum(data)
    .attr("fill", "none")
