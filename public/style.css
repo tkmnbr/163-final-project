@@ -1,0 +1,22 @@
+
+
+/* For Martini Glass Structure: Initialy hide all scences and show only "active" scene */
+
+
+/* Hide all scene */
+.scene {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* desplay scenes that have .active  */
+.scene.active {
+  display: block;
+  opacity: 1;
+}
+
+
+section.scene {
+  padding: 20px;
+}

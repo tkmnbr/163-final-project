@@ -6,9 +6,6 @@ import { drawParallelCoords } from "./parallelCoords.js";
 import { drawSankeyDiagram }  from "./sankeyDiagram.js";
 
 
-drawLineChart("#line-chart");
-
-
 /***********************************************************
  * SANKY DIAGRAM
  ***********************************************************/
@@ -32,7 +29,6 @@ const sankeyData = {
     { source: "Female", target: "Not Arrested", value: 5 }
   ]
 };
-drawSankeyDiagram("#sankey-diagram", sankeyData);
 /*************************************************************/
 
 
@@ -125,14 +121,96 @@ async function updateExploreVis() {
   }
 }
 
+// utility function to show a specific scene by index
+// scenceIds: Array of scene IDs in the order they should be displayed
+const sceneIds = ["scene1", "scene2", "scene3", "scene4"];
+let currentSceneIndex = 0;
+
+
+
+function showScene(n) {
+  if (n < 0 || n >= sceneIds.length) return;
+  sceneIds.forEach((id, idx) => {
+    const sec = document.getElementById(id);
+    if (idx === n) {
+      // display the current scene and add .active class
+      sec.classList.add("active");
+    } else {
+      // hide other scenes and remove .active class
+      sec.classList.remove("active");
+    }
+  });
+  currentSceneIndex = n;
+}
+
+
+
+// Scene1: Line Chart
+function initScene1() {
+  drawLineChart("#line-chart");
+}
+
+
+// Scene2: Parallel Coordinates
+function initScene2() {
+  drawParallelCoords("#parallel-coords", dataStates);
+}
+
+// Scene3: Sankey Diagram
+function initScene3() {
+  drawSankeyDiagram("#sankey-diagram", sankeyData);
+}
+
+// Scene4: Explore Mode
+function initScene4() {
+  initExploreMode();
+}
+
+
+
+// Button event listeners for navigating between scenes
+// Scene1 → Scene2
+document.getElementById("btn-next-1").addEventListener("click", () => {
+  showScene(1);      // Display Scene2
+  initScene2();      // Initialize Scene2
+});
+
+// Scene2 → Scene1
+document.getElementById("btn-prev-2").addEventListener("click", () => {
+  showScene(0);      // Display Scene1
+});
+
+// Scene2 → Scene3
+document.getElementById("btn-next-2").addEventListener("click", () => {
+  showScene(2);      // Dsiplay Scene3
+  initScene3();      // initialize Scene3
+});
+
+// Scene3 → Scene2
+document.getElementById("btn-prev-3").addEventListener("click", () => {
+  showScene(1);      // Display Scene2
+});
+
+// Scene3 → Scene4
+document.getElementById("btn-next-3").addEventListener("click", () => {
+  showScene(3);      // Display Scene4
+  initScene4();      // initialize Scene4
+});
+
+// Scene4 → Scene3
+document.getElementById("btn-prev-4").addEventListener("click", () => {
+  showScene(2);      // Display Scene3
+});
+
+
+
 /**
  * Entry point for the application.
  * Draws Scenes 1–3, then initializes Explore Mode.
  */
-export function main() {
-  
-
-  initExploreMode();
+export function main(){
+  // show scene 1 first
+  showScene(0); // Scene1
+  initScene1(); // Draw Scene1 chart
 }
-
 main();

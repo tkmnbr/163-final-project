@@ -8,10 +8,14 @@
 <body>
   <main>
     <!-- Scene 1: National Trends -->
-    <section id="scene1" class="scene">
+    <section id="scene1" class="scene active">
       <h2>Scene 1: National Trends</h2>
       <p>Display the annual trend of aggravated assault incidents across the United States via a line chart.</p>
       <svg id="line-chart" width="800" height="400"></svg>
+
+      <div class="navigation">
+        <button id="btn-next-1">Next: Scene 2</button>
+      </div>
     </section>
 
     <!-- Scene 2: State Comparison -->
@@ -19,6 +23,11 @@
       <h2>Scene 2: State Comparison</h2>
       <p>Compare crime metrics across states using a parallel coordinates plot.</p>
       <svg id="parallel-coords" width="800" height="400"></svg>
+
+      <div class="navigation">
+        <button id="btn-prev-2">Back: Scene 1</button>
+        <button id="btn-next-2">Next: Scene 3</button>
+      </div>
     </section>
 
     <!-- Scene 3: Weapon → Victim Gender → Arrest Outcome -->
@@ -31,6 +40,11 @@
           <label for="year-slider">Year: <span id="year-label">2023</span></label>
           <input type="range" id="year-slider" min="2010" max="2025" value="2023" />
         </div>
+      </div>
+
+      <div class="navigation">
+        <button id="btn-prev-3">Back: Scene 2</button>
+        <button id="btn-next-3">Next: Scene 4</button>
       </div>
     </section>
 
@@ -67,6 +81,10 @@
       <div id="explore-vis">
         <!-- Depending on selection, we will render line chart, parallel coords, or sankey -->
         <svg id="explore-chart" width="800" height="400"></svg>
+      </div>
+
+      <div class="navigation">
+        <button id="btn-prev-4">Back: Scene 3</button>
       </div>
     </section>
 
