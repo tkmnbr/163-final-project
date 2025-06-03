@@ -1,22 +1,292 @@
-
-
-/* For Martini Glass Structure: Initialy hide all scences and show only "active" scene */
-
-
-/* Hide all scene */
+/*******************************************************************
+* This code segment is for dashboard background and centering
+********************************************************************/
+body {
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  background: linear-gradient(135deg, #0d0d00 0%, #1f0244 100%);
+  color: hsl(289, 93%, 49%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+/*******************************************************************
+* This code segment is for dashboard header styling
+********************************************************************/
+.dashboard-header {
+  background: #a30b75;
+  color: #bc1111;
+  font-size: 2.1rem;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+  padding: 1.3em 2em 1.1em 2em;
+  border-radius: 0 0 18px 18px;
+  margin-bottom: 2em;
+  margin-top: 0;
+  text-align: center;
+  width: 100vw;
+  box-shadow: 0 0 30px 10px rgba(244, 11, 178, 0.476);
+}
+/*******************************************************************
+* This code segment is for dashboard container for true centering
+********************************************************************/
+.dashboard-container {
+  min-height: 110vh;
+  width: 150vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* vertical centering */
+  position: relative;
+  box-shadow: 0 14px 10px rgba(11, 31, 249, 0.16); /* this is shadow for the whole dashboard */
+}
+/*******************************************************************
+* Martini Glass Structure: Only one scene visible, smooth fade, no slipping
+********************************************************************/
 .scene {
   display: none;
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.5s cubic-bezier(.4,0,.2,1);
+  background: #1b1b1f;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(51, 1, 63, 0.22), 0 2px 12px rgba(229, 149, 149, 0.12);
+  border: 1.5px solid #6de830;
+  padding: 2.5rem 2.5rem 2.5rem 2.5rem;
+  margin: 0 auto;
+  max-width: 700px;
+  min-width: 300px;
+  min-height: 540px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  position: relative; 
 }
-
-/* desplay scenes that have .active  */
 .scene.active {
-  display: block;
+  display: flex;
   opacity: 1;
+  border-color: #067779;
+  z-index: 15;
 }
+/*******************************************************************
+* Scene content styling
+********************************************************************/
+.scene h2 {
+  color: #fde109dc;
+  font-size: 2rem;
+  margin-bottom: 0.5em;
+  text-align: center;
+}
+.scene p {
+  color: #06eaf2fb;
+  text-align: center;
+  margin-bottom: 1.2em;
+  font-size: 1.1em;
+}
+/*******************************************************************
+* Chart SVG styling
+********************************************************************/
+.scene svg {
+  background: #000208;
+  border-radius: 17px;
+  box-shadow: 0 0 20px 10px rgba(150, 251, 152, 0.131);
+  margin: 1.2em auto 0 auto;
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  height: 340px;
+  padding: 0.5em;
+}
+/*********************************************************************
+* This code segment is for Controls, Inputs, and Chart Elements.
+*********************************************************************/
+#controls, .slider-wrapper {
+  margin: 1.5em 0 0.5em 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5em;
+  align-items: center;
+  justify-content: center;
+}
+.control-group label {
+  font-size: 1em;
+  color: #bafa08;
+  margin-right: 0.2em;
+}
+select, input[type="range"] {
+  font-size: 1em;
+  padding: 0.3em 0.7em;
+  border-radius: 6px;
+  border: 2.1px solid #280387ac;
+  background: #530389;
+  color: #bcf905;
+  transition: background 0.2s, border 0.2s;
+}
+select:hover, input[type="range"]:hover {
+  background: #c8cb0a;
+  border-color: #de0760;
+}
+/* Chart element style */
+.line {
+  fill: none;
+  stroke: #b92935;
+  stroke-width: 10px;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #fcf7f7;
+  shape-rendering: crispEdges;
+}
+.axis text {
+  font-size: 14px;
+  fill: #11eff7e8; /* bright yellow for visibility */
+}
+.dot {
+  fill: #16f9db;
+  stroke: #cd2d2d;
+  stroke-width: 2px;
+}
+.parallel-line {
+  stroke-width: 3px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.parallel-line:hover {
+  opacity: 1;
+  stroke-width: 5px;
+}
+.node rect {
+  fill-opacity: 0.90;
+  stroke: #73e21f;
+  stroke-width: 2px;
+}
+.node text {
+  font-size: 16px;
+  fill: #2c3e50;
+  font-weight: bold;
+}
+.link {
+  fill: none;
+  stroke-opacity: 0.5;
+  transition: stroke-opacity 0.2s;
+}
+.link:hover {
+  stroke-opacity: 0.9;
+}
+.tooltip {
+  position: fixed;           /* This Uses fixed for overlays that follow the mouse */
+  background: #0b0268;
+  color: #c4e108;
+  padding: 0.7em 1em;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(204, 16, 16, 0.12);
+  pointer-events: none;
+  font-size: 16px;
+  z-index: 9999;            
+  display: none;
+}
+/*********************************************************************
+* Per-chart legends,color brackets.
+**********************************************************************/
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2em;
+  justify-content: center;
+  align-items: center;
+  margin: 0.8em 0 0.2em 0;
+  font-size: 1.1em;
+  background: #1c0950;
+  border-radius: 10px;
+  box-shadow: 0 0 10px 20px rgba(244, 240, 243, 0.717);
+  padding: 0.5em 1.2em;
+}
+.legend-color {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  margin-right: 0.4em;
+  vertical-align: middle;
+  border: 2px solid #621a1a;
+}
+.line-color { background: #b929aa; }
+.dot-color { background: #e67e22; }
+.parallel-color { background: #2980b9; }
+.sankey-node-color { background: #f4f8fb; border: 2px solid #34495e; }
+.sankey-link-color { background: linear-gradient(90deg, #2980b9 50%, #34495e 100%); opacity: 0.5; }
+.explore-color { background: #e83042; }
 
-
-section.scene {
-  padding: 20px;
+/*********************************************************************
+* This code segment is for responsive adjustments for smaller screens
+**********************************************************************/
+@media (max-width: 700px) {
+  .dashboard-container {
+    padding: 1rem 0.2rem;
+    min-height: 400px;
+    box-shadow: 0 20px 32px rgba(244, 243, 243, 0.18); 
+  }
+  .scene {
+    padding: 1.2rem 0.5rem;
+    max-width: 99vw;
+    min-height: 320px;
+    box-shadow: 0 16px 40px rgba(248, 245, 245, 0.25), 0 2px 12px rgba(244, 237, 237, 0.12);
+  }
+  .scene svg {
+    max-width: 98vw;
+    height: 220px;
+  }
+  .dashboard-header {
+    font-size: 1.1rem;
+    padding: 0.7em 0.5em;
+  }
+}
+/*Dashboard centering and anti-slip enhancement*/
+main {
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* vertical centering */
+  position: relative;
+}
+.scene {
+  margin: 0 !important; /* this line remove vertical margin to avoid jump */
+  box-sizing: border-box;
+  box-shadow: 0 0 20px 10px rgba(248, 195, 4, 0.354);
+}
+.scene:not(.active) {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.scene.active {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem auto !important; /* This is for vertical spacing */
+  max-width: 700px;
+  min-width: 400px;
+  min-height: 600px;
+  box-sizing: border-box;
+}
+html, body, main {
+  height: 100%;
+  min-height: 100vh;
+}
+main {
+  width: 100vw;
+  min-width: 100vw;
+  min-height: 100vh;
+}
+/*This is for the axis labels color */
+svg text {
+  fill: #fded09;
+  font-size: 1.2em;
+  fill: #ffee05;
+  margin: 1rem auto !important; 
+  font-weight: bold;
 }

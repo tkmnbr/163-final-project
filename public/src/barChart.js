@@ -39,7 +39,7 @@ export async function drawBarChart(selector, yearFilter) {
 
   // Setup SVG dimensions and margins
   const svg = d3.select(selector);
-  const margin = { top: 50, right: 30, bottom: 50, left: 80 };
+  const margin = { top: 50, right: 50, bottom: 50, left: 80 };
   const width  = +svg.attr("width")  - margin.left - margin.right;
   const height = +svg.attr("height") - margin.top  - margin.bottom;
 
@@ -78,7 +78,9 @@ export async function drawBarChart(selector, yearFilter) {
      .attr("y", d => y(d.value))
      .attr("width", x.bandwidth())
      .attr("height", d => height - y(d.value))
-     .attr("fill", "steelblue");
+     .attr("fill", "red")
+     // --- Tooltip attribute for the bar ---
+     .attr("data-tooltip", d => `Year: ${d.category}, Count: ${d.value}`);
 
   // Draw X-axis with one tick
   g.append("g")
@@ -95,12 +97,12 @@ export async function drawBarChart(selector, yearFilter) {
        .tickPadding(10)
    )
    .selectAll(".tick line")
-     .attr("stroke-opacity", 0.2);  
+     .attr("stroke-opacity", 0.1);  
 
   // Add Y-axis label
   g.append("text")
    .attr("transform", `translate(${-margin.left + 20},${height / 2}) rotate(-90)`)
    .attr("text-anchor", "middle")
-   .attr("font-size", "12px")
+   .attr("font-size", "11px")
    .text("Count");
 }
