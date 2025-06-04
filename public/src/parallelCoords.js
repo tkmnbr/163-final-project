@@ -127,8 +127,11 @@ class ParallelCoordinates {
             .style("font-weight", "bold")
             .style("fill", "#2c3e50")
             .text("State-Level Crime Analysis: Multi-Dimensional Comparison");
+<<<<<<< HEAD
 
         
+=======
+>>>>>>> 9f7db32e6023f971d0b64948f79dfa05f80434a2
         
         // Create main group
         const g = svg.append("g")
@@ -290,11 +293,18 @@ class ParallelCoordinates {
     }
 
     // Add legend
+<<<<<<< HEAD
         // Add legend (moved farther to the right so it no longer overlaps the 4th axis)
     addLegend(svg, width) {
         const legend = svg.append("g")
             .attr("class", "legend")
             .attr("transform", `translate(${width + this.config.margin.left + 20}, ${this.config.margin.top + 30})`);
+=======
+    addLegend(svg, width) {
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width + this.config.margin.left - 100}, ${this.config.margin.top + 30})`);
+>>>>>>> 9f7db32e6023f971d0b64948f79dfa05f80434a2
         
         const legendItems = legend.selectAll(".legend-item")
             .data(this.colorScale.domain())
@@ -316,15 +326,23 @@ class ParallelCoordinates {
             .attr("y", 0)
             .attr("dy", "0.35em")
             .style("font-size", "11px")
+<<<<<<< HEAD
             .style("fill", "#ffffff")   /* 文字色を白に */
             .text(d => d);
         
         // Legend title (also white)
+=======
+            .style("fill", "#2c3e50")
+            .text(d => d);
+        
+        // Legend title
+>>>>>>> 9f7db32e6023f971d0b64948f79dfa05f80434a2
         legend.append("text")
             .attr("x", 0)
             .attr("y", -10)
             .style("font-size", "12px")
             .style("font-weight", "bold")
+<<<<<<< HEAD
             .style("fill", "#ffffff")
             .text("Population Size");
     }
@@ -398,6 +416,59 @@ class ParallelCoordinates {
             .duration(500)
             .style("opacity", 0);
         });
+=======
+            .style("fill", "#2c3e50")
+            .text("Population Size");
+    }
+
+    // Add tooltips
+    addTooltips(selection) {
+        this.tooltip = d3.select("body").append("div")
+            .style("position", "absolute")
+            .style("background", "rgba(44, 62, 80, 0.95)")
+            .style("color", "white")
+            .style("padding", "12px")
+            .style("border-radius", "8px")
+            .style("font-size", "12px")
+            .style("pointer-events", "none")
+            .style("opacity", 0)
+            .style("box-shadow", "0 4px 12px rgba(0, 0, 0, 0.3)");
+        
+        selection
+            .on("mouseover", (event, d) => {
+                d3.select(event.currentTarget)
+                    .style("stroke-width", 4)
+                    .style("opacity", 1);
+                
+                this.tooltip.transition()
+                    .duration(200)
+                    .style("opacity", 1);
+                
+                const tooltipContent = `
+                    <strong>${d.state} (${d.state_abbr})</strong><br/>
+                    <strong>Population:</strong> ${d3.format(",")(d.population)} (${d.population_tier})<br/>
+                    <strong>Total Assaults:</strong> ${d3.format(",")(d.total_assaults)}<br/>
+                    <strong>Assault Rate:</strong> ${d3.format(".1f")(d.assault_rate_per_100k)}/100k<br/>
+                    <strong>Firearm Usage:</strong> ${this.dimensions[1].format(d.firearm_percentage)}%<br/>
+                    <strong>Arrest Rate:</strong> ${this.dimensions[2].format(d.arrest_rate)}%<br/>
+                    <strong>Avg Victim Age:</strong> ${this.dimensions[3].format(d.avg_victim_age)}<br/>
+                    <strong>Years Analyzed:</strong> ${d.years_analyzed}
+                `;
+                
+                this.tooltip.html(tooltipContent)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 10) + "px");
+            })
+            .on("mouseout", (event, d) => {
+                d3.select(event.currentTarget)
+                    .style("stroke-width", 2.5)
+                    .style("opacity", d => this.currentFilters.states.length === 0 || this.currentFilters.states.includes(d.state) ? 0.8 : 0.3);
+                
+                this.tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+>>>>>>> 9f7db32e6023f971d0b64948f79dfa05f80434a2
     }
 
     // Filter functions
@@ -471,4 +542,8 @@ class ParallelCoordinates {
 }
 
 // Export the class
+<<<<<<< HEAD
 export default ParallelCoordinates;
+=======
+export default ParallelCoordinates;
+>>>>>>> 9f7db32e6023f971d0b64948f79dfa05f80434a2
