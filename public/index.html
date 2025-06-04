@@ -36,10 +36,7 @@
       <p>Visualize the flow from weapon type to victim gender to arrest outcome using a Sankey diagram.</p>
       <div class="sankey-container">
         <svg id="sankey-diagram" width="600" height="300"></svg>
-        <div class="slider-wrapper">
-          <label for="year-slider">Year: <span id="year-label">2023</span></label>
-          <input type="range" id="year-slider" min="2010" max="2025" value="2023" />
-        </div>
+        
       </div>
 
       <div class="navigation">
@@ -50,43 +47,33 @@
 
     <!-- Scene 4: Explore Mode -->
     <section id="scene4" class="scene">
-      <h2>Scene 4: Explore Mode</h2>
-      <p>Interactively filter data by year, state, and metric to explore details.</p>
+    <h2>Scene 4: Explore Mode</h2>
+    <p>Interactively filter data by a year range (start–end) and select a state.</p>
 
-      <div id="controls">
-        <!-- Year selector -->
-        <div class="control-group">
-          <label for="explore-year">Year:</label>
-          <select id="explore-year"></select>
-        </div>
-
-        <!-- State selector -->
-        <div class="control-group">
-          <label for="explore-state">State:</label>
-          <select id="explore-state"></select>
-        </div>
-
-        <!-- Metric selector (e.g., Offender Count, Victim Count, etc.) -->
-        <div class="control-group">
-          <label for="explore-metric">Metric:</label>
-          <select id="explore-metric">
-            <option value="offender_sex">Offender Count by Sex</option>
-            <option value="victim_sex">Victim Count by Sex</option>
-            <!-- Add more metrics as needed -->
-          </select>
-        </div>
+    <div id="controls">
+      <div class="control-group">
+        <label for="explore-start-year">Start Year:</label>
+        <select id="explore-start-year"></select>
       </div>
-
-      <!-- Visualization container -->
-      <div id="explore-vis">
-        <!-- Depending on selection, we will render line chart, parallel coords, or sankey -->
-        <svg id="explore-chart" width="600" height="280"></svg>
+      <div class="control-group">
+        <label for="explore-end-year">End Year:</label>
+        <select id="explore-end-year"></select>
       </div>
-
-      <div class="navigation">
-        <button id="btn-prev-4">Back: Scene 3</button>
+      <div class="control-group">
+        <label for="explore-state">State:</label>
+        <select id="explore-state"></select>
       </div>
-    </section>
+    </div>
+
+    <div id="explore-vis">
+      <svg id="explore-chart" width="800" height="400"></svg>
+    </div>
+
+    <div class="navigation">
+      <button id="btn-prev-4">Back: Scene 3</button>
+    </div>
+  </section>
+
 
   </main>
   <!-- Tooltip container for all charts -->
