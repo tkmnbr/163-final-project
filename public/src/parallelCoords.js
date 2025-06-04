@@ -9,8 +9,8 @@ class ParallelCoordinates {
     constructor(containerId, options = {}) {
         this.containerId = containerId;
         this.config = {
-            margin: { top: 80, right: 120, bottom: 80, left: 80 },
-            width: 1100,
+            margin: { top: 120, right: 70, bottom: 30, left: 110 },
+            width: 1290,
             height: 500,
             ...options
         };
@@ -178,7 +178,7 @@ class ParallelCoordinates {
             .attr("d", d => line(this.dimensions.map(dim => [dim.key, d[dim.key]])))
             .style("fill", "none")
             .style("stroke", d => this.colorScale(d.population_tier))
-            .style("stroke-width", 2.5)
+            .style("stroke-width", 2.0)
             .style("opacity", d => this.currentFilters.states.length === 0 || this.currentFilters.states.includes(d.state) ? 0.8 : 0.3);
         
         // Add state labels for highlighted states
@@ -214,9 +214,9 @@ class ParallelCoordinates {
             .attr("y", -25)
             .attr("x", 0)
             .attr("text-anchor", "middle")
-            .style("font-size", "12px")
+            .style("font-size", "14px")
             .style("font-weight", "bold")
-            .style("fill", "#2c3e50")
+            .style("fill", " #2c3e50")
             .text(d => d.label);
         
         // Add brushing
@@ -340,14 +340,14 @@ class ParallelCoordinates {
         .append("div")
         .attr("class", "tooltip")   // must match your CSS
         .style("position", "absolute")
-        .style("background", "rgba(44, 62, 80, 0.95)")
-        .style("color", "white")
+        .style("background", "rgba(249, 228, 5, 0.95)")
+        .style("color", "blue")
         .style("padding", "12px")
         .style("border-radius", "8px")
         .style("font-size", "12px")
         .style("pointer-events", "none")
         .style("opacity", 0)
-        .style("box-shadow", "0 4px 12px rgba(0, 0, 0, 0.3)");
+        .style("box-shadow", "0 4px 12px rgba(200, 159, 159, 0.3)");
 
     // Now wire up both background & foreground lines
     selection
