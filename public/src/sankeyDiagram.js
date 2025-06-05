@@ -43,20 +43,115 @@ export function drawSankeyDiagram(selector, data) {
     nodes: data.nodes.map(d => ({ ...d })),
     links: data.links.map(d => ({ ...d }))
   });
+/*******************************************************************************************/  
+//This code segment draws base Sankey links first (shadow layer)
+/*******************************************************************************************/
+svg.append("g")
+  .attr("fill", "none")
+  .selectAll("path")
+  .data(sankeyData.links)
+  .join("path")
+    .attr("class", "link-shadow")
+    .attr("d", sankeyLinkHorizontal())
+    .attr("stroke", d => d.source.color)
+    .attr("stroke-width", d => Math.max(1, d.width))
+    .attr("stroke-opacity", 0.2);
 
+/*******************************************************************************************/  
+// Create defs for animated gradient
 /*******************************************************************************************/
-  //This code segment draw the semi‐transparent flow links
+const defs = svg.append("defs");
+
+sankeyData.links.forEach((link, i) => {
+  const grad = defs.append("linearGradient")
+    .attr("id", `grad${i}`)
+    .attr("gradientUnits", "userSpaceOnUse")
+    .attr("x1", link.source.x1)
+    .attr("x2", link.target.x0)
+    .attr("y1", 0)
+    .attr("y2", 0);
+
+  grad.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", link.source.color)
+    .attr("stop-opacity", 0.1);
+  grad.append("stop")
+    .attr("offset", "50%")
+    .attr("stop-color", "white")
+    .attr("stop-opacity", 0.9);
+  grad.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", link.source.color)
+    .attr("stop-opacity", 0.1);
+});
+/*******************************************************************************************/  
+// Draw animated flow links using gradient
 /*******************************************************************************************/
-  svg.append("g")
+svg.append("g")
+  .attr("fill", "none")
+  .selectAll("path")
+  .data(sankeyData.links)
+  .join("path")
+    .attr("class", "link-glow")
+    .attr("d", sankeyLinkHorizontal())
+    .attr("stroke", (d, i) => `url(#grad${i})`)
+    .attr("stroke-width", d => Math.max(1, d.width))
+    .attr("stroke-opacity", 1)
+    .attr("stroke-dasharray", "20 40")
+    .attr("stroke-dashoffset", 0)
+    .transition()
+    .duration(2000)
+    .ease(d3.easeLinear)
+    .attrTween("stroke-dashoffset", () => d3.interpolateNumber(0, 60))
+    .on("end", function repeat() {
+      d3.select(this)
+        .attr("stroke-dashoffset", 0)
+        .transition()
+        .duration(2000)
+        .ease(d3.easeLinear)
+        .attrTween("stroke-dashoffset", () => d3.interpolateNumber(0, 60))
+        .on("end", repeat);
+    });
+    /*******************************************************************************************/  
+// This code segment adds red animated bubbles flowing along each link
+/*******************************************************************************************/
+sankeyData.links.forEach((link, i) => {
+  const pathId = `linkPath${i}`;
+
+  // Create a hidden path for motion reference
+  svg.append("path")
+    .attr("id", pathId)
+    .attr("d", sankeyLinkHorizontal()(link))
     .attr("fill", "none")
-    .selectAll("path")
-    .data(sankeyData.links)
-    .join("path")
-      .attr("d", sankeyLinkHorizontal())
-      .attr("stroke", d => d.source.color)
-      .attr("stroke-width", d => Math.max(1, d.width))
-      .attr("stroke-opacity", 0.4);
+    .attr("stroke", "none");
 
+  // Create a red bubble (circle)
+  const bubble = svg.append("circle")
+    .attr("r", 3)               // size of bubble
+    .attr("fill", "red")
+    .attr("opacity", 0.8);
+
+  // Function to animate the bubble along the path
+  function animateBubble() {
+    const path = d3.select(`#${pathId}`).node();
+    const totalLength = path.getTotalLength();
+
+    bubble
+      .attr("transform", null)
+      .transition()
+      .duration(2000 + Math.random() * 1000)  // randomize speed a little
+      .ease(d3.easeLinear)
+      .attrTween("transform", function() {
+        return function(t) {
+          const point = path.getPointAtLength(t * totalLength);
+          return `translate(${point.x},${point.y})`;
+        };
+      })
+      .on("end", animateBubble); // loop it
+  }
+
+  animateBubble(); // start the animation
+});
   /*******************************************************************************************/
   // This code segment draw invisible, wider paths on top of the real links for hover‐area
   /*******************************************************************************************/

@@ -28,12 +28,6 @@ const sankeyData = {
   ]
 };
 /*************************************************************/
-
-
-
-
-
-
 // main.js
 
 // =======================================
@@ -223,7 +217,7 @@ function drawExploreLine(data) {
   const innerHeight = height - margin.top  - margin.bottom;
 
   // ──────────────────────────────────────────────────────────────────────────────
-  // ADD THE TITLE HERE (before creating the inner <g>)
+  // title
   // ──────────────────────────────────────────────────────────────────────────────
   svg.selectAll("text.chart-title").remove(); // (optional) clear any existing title
   svg.append("text")
@@ -236,11 +230,9 @@ function drawExploreLine(data) {
     .text("Aggravated Assault Count Trend");
   // ──────────────────────────────────────────────────────────────────────────────
 
-  // 3) Create a <g> group shifted by the new margins
+  // this Creating a <g> group shifted by the new margins
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
-
-  // 4) If no data, show "No data" message in the center of the drawing area
   if (!data || data.length === 0) {
     g.append("text")
       .attr("x", innerWidth / 2)
@@ -251,7 +243,7 @@ function drawExploreLine(data) {
     return;
   }
 
-  // 5) Define x and y scales based on filtered data
+  //this Define x and y scales based on filtered data
   const xScale = d3.scaleTime()
     .domain(d3.extent(data, d => d.year))
     .range([0, innerWidth]);
@@ -262,7 +254,7 @@ function drawExploreLine(data) {
     .nice()
     .range([innerHeight, 0]);
 
-  // 6) Draw X axis at bottom of inner drawing area
+  // Draws X axis at bottom of inner drawing area
   g.append("g")
     .attr("transform", `translate(0,${innerHeight})`)
     .call(
@@ -275,7 +267,7 @@ function drawExploreLine(data) {
       .attr("fill", "yellow")
       .attr("font-size", "10px");
 
-  // 7) Draw Y axis on the left
+  //Draws Y axis on the left
   g.append("g")
     .call(
       d3.axisLeft(yScale)
@@ -285,7 +277,7 @@ function drawExploreLine(data) {
       .attr("fill", "yellow")
       .attr("font-size", "10px");
 
-  // 8) Y axis label (“Offender Count”) above left axis, with extra offset
+  // Y axis label (“Offender Count”) above left axis, with extra offset
   g.append("text")
     .attr("transform", `translate(${-margin.left + 20},${innerHeight / 2}) rotate(-90)`)
     .attr("text-anchor", "middle")
@@ -293,7 +285,7 @@ function drawExploreLine(data) {
     .attr("fill", "yellow")
     .text("Offender Count");
 
-  // 9) X axis label (“Year”) below the ticks, centered
+  // this is for  X axis label (“Year”) below the ticks, centered
   g.append("text")
     .attr("x", innerWidth / 2)
     .attr("y", innerHeight + margin.bottom - 15)
@@ -302,7 +294,7 @@ function drawExploreLine(data) {
     .attr("fill", "yellow")
     .text("Year");
 
-  // 10) Draw the magenta line connecting all points
+  // this Draw the magenta line connecting all points
   const lineGen = d3.line()
     .x(d => xScale(d.year))
     .y(d => yScale(d.count));
@@ -314,7 +306,7 @@ function drawExploreLine(data) {
     .attr("stroke-width", 2)
     .attr("d", lineGen);
 
-  // 11) Draw circles at each data point (for tooltip region)
+  // this Draw circles at each data point.
   g.selectAll(".dot")
     .data(data)
     .join("circle")
@@ -326,7 +318,7 @@ function drawExploreLine(data) {
       .style("pointer-events", "all")
       .attr("data-tooltip", d => `Year: ${d3.timeFormat("%Y")(d.year)}, Count: ${d.count}`);
 
-  // 12) Finally, attach tooltip behavior to all those circles:
+  // Finally, attach tooltip behavior to all those circles:
   d3.selectAll("#explore-chart circle[data-tooltip]")
     .on("mouseover", (event, d) => {
       // Create or select the tooltip DIV
@@ -339,10 +331,10 @@ function drawExploreLine(data) {
                     .style("pointer-events", "none")
                     .style("opacity", 0);
 
-      // Override display:none if needed
+      // this Override display:none if needed
       tt.style("display", "block");
 
-      // Set the HTML content & position
+      // this Set the HTML content & position
       const htmlText = d3.select(event.currentTarget).attr("data-tooltip");
       tt.html(htmlText)
         .style("left",  (event.pageX + 12) + "px")
@@ -361,7 +353,6 @@ function drawExploreLine(data) {
       }
     });
 }
-
 
 // =======================================
 // Button listeners for Scene navigation
@@ -386,6 +377,7 @@ document.getElementById("btn-next-3").addEventListener("click", () => {
 });
 document.getElementById("btn-prev-4").addEventListener("click", () => {
   showScene(2);
+  main();
 });
 
 // =======================================
@@ -397,13 +389,6 @@ export function main() {
 }
 
 main();
-
-
-
-
-
-
-
 
 // Tooltip logic for SVG elements with data-tooltip
 const tooltip = document.getElementById('tooltip');

@@ -29,11 +29,11 @@ export async function drawLineChart(selector, yearFilter = null, stateFilter = n
 
   // Setup SVG and margins
   const svg = d3.select(selector);
-  const margin = { top: 70, right: 30, bottom: 70, left: 95 };
+  const margin = { top: 70, right: -5, bottom: 10, left: 100 };
   const width = +svg.attr("width") - margin.left - margin.right;
   const height = +svg.attr("height") - margin.top - margin.bottom;
 
-  // Add title
+  // Add subtitle
   svg.append("text")
      .attr("x", margin.left + width / 2.3)
      .attr("y", margin.top / 2)
@@ -71,13 +71,29 @@ export async function drawLineChart(selector, yearFilter = null, stateFilter = n
    .text(type === "victim" ? "Victim Count" : "Offender Count");
 
   // Draw line
-  const line = d3.line().x(d => x(d.year)).y(d => y(d.count));
-  g.append("path")
-   .datum(data)
-   .attr("fill", "none")
-   .attr("stroke", " blue")
-   .attr("stroke-width", 2.5)
-   .attr("d", line);
+  // Draw line
+const line = d3.line().x(d => x(d.year)).y(d => y(d.count));
+
+// adding the animation 
+const path = g.append("path")
+  .datum(data)
+  .attr("fill", "none")
+  .attr("stroke", "red")
+  .attr("stroke-width", 2.5)
+  .attr("d", line);
+const totalLength = path.node().getTotalLength();
+
+function repeatAnimation() {
+  path
+    .attr("stroke-dasharray", totalLength + " " + totalLength)
+    .attr("stroke-dashoffset", totalLength)
+    .transition()
+    .duration(2000)
+    .ease(d3.easeLinear)
+    .attr("stroke-dashoffset", 0)
+    .on("end", repeatAnimation);  // When done, restart animation
+}
+repeatAnimation();
 
   // This is for invisible circles for tooltip interaction.
   g.selectAll("circle")

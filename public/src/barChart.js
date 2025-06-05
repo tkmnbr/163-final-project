@@ -1,11 +1,11 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
-/**
+/*********************************************************************************************
  * Draws a bar chart (histogram) for a single year's total offender count,
  * using a fixed y-axis max across all years (2010–2023).
  * @param {string} selector     - CSS selector for the SVG element
  * @param {number} yearFilter   - Year to display (e.g., 2013)
- */
+ **********************************************************************************************/
 export async function drawBarChart(selector, yearFilter) {
   // Load the CSV containing national offender trends
   // Assume `public/processed/offender_trends.csv` has columns: year,total_offender_count
@@ -39,7 +39,7 @@ export async function drawBarChart(selector, yearFilter) {
 
   // Setup SVG dimensions and margins
   const svg = d3.select(selector);
-  const margin = { top: 50, right: 50, bottom: 50, left: 80 };
+  const margin = { top: 100, right: 10, bottom: 10, left: 80 };
   const width  = +svg.attr("width")  - margin.left - margin.right;
   const height = +svg.attr("height") - margin.top  - margin.bottom;
 
