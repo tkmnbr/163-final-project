@@ -12,7 +12,7 @@
     <section id="scene1" class="scene active">
       <h2>Scene 1: National Trends</h2>
       <p>Display the annual trend of aggravated assault incidents across the United States via a line chart.</p>
-      <svg id="line-chart" width="900" height="340"></svg>
+      <svg id="line-chart" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet"></svg>
       <div class="navigation">
         <button id="btn-next-1">Next: Scene 2</button>
       </div>
@@ -22,7 +22,8 @@
     <section id="scene2" class="scene">
       <h2>Scene 2: State Comparison</h2>
       <p>Compare crime metrics across states using a parallel coordinates plot.</p>
-      <svg id="parallel-coords" width="700" height="400"></svg>
+      <svg id="parallel-coords" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet"></svg>
+
 
       <div class="navigation">
         <button id="btn-prev-2">Back: Scene 1</button>
@@ -35,7 +36,7 @@
       <h2>Scene 3: Weapon → Victim Gender → Arrest Outcome</h2>
       <p>Visualize the flow from weapon type to victim gender to arrest outcome using a Sankey diagram.</p>
       <div class="sankey-container">
-        <svg id="sankey-diagram" width="1100" height="400"></svg>
+        <svg id="sankey-diagram" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet"></svg>
         
       </div>
 
@@ -65,9 +66,19 @@
       </div>
     </div>
 
-    <div id="explore-vis">
-      <svg id="explore-chart" width="1100" height="500"></svg>
+    <div class="explore-background">
+      <!-- Existing line chart -->
+      <svg id="explore-chart" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet"></svg>
+
+      <!-- Black canvas container -->
+      <div id="explore-parallel-container">
+        <svg id="explore-parallel" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
     </div>
+
+
+    
+
 
     <div class="navigation">
       <button id="btn-prev-4">Back: Scene 3</button>
@@ -81,3 +92,7 @@
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>
+
+
+
+<svg id="explore-chart" ...></svg

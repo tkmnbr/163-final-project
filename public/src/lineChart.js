@@ -29,9 +29,15 @@ export async function drawLineChart(selector, yearFilter = null, stateFilter = n
 
   // Setup SVG and margins
   const svg = d3.select(selector);
-  const margin = { top: 70, right: -5, bottom: 10, left: 100 };
-  const width = +svg.attr("width") - margin.left - margin.right;
-  const height = +svg.attr("height") - margin.top - margin.bottom;
+  const svgWidth = 900;
+  const svgHeight = 340;
+  svg.attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+    .attr("preserveAspectRatio", "xMidYMid meet");
+
+  const margin = { top: 60, right: 50, bottom: 60, left: 80 };
+  const width = svgWidth - margin.left - margin.right;
+  const height = svgHeight - margin.top - margin.bottom;
+
 
   // Add subtitle
   svg.append("text")

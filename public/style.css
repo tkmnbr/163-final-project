@@ -65,16 +65,14 @@ body {
   border-radius: 18px;
   box-shadow: 0 8px 32px rgba(51, 1, 63, 0.22), 0 2px 12px rgba(229, 149, 149, 0.12);
   border: 1.5px solid #6de830;
-  padding: 2.5rem;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  max-width: 1500px;
-  min-width: 1100px;
-  min-height: 1200px;
-  max-height: 1200;
+  padding: 2rem;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-sizing: border-box;
   position: relative;
 }
 
@@ -117,9 +115,9 @@ body {
   margin: 1.2em auto 0 auto;
   display: block;
   width: 100%;
-  max-width: 3500px; /* Original fixed max */
-  height: 700px;    /* Original height */
-  padding: 0em;
+  max-width: 100%; /* Original fixed max */
+  height: auto;    
+  padding: 1em;
   overflow: visible; /* Allow axis labels to overflow if needed */
 }
 
@@ -129,6 +127,8 @@ body {
 * Expands the Scene 4 container to occupy full viewport width/height,
 * and makes its SVG much larger and full-width.
 ********************************************************************/
+
+
 
 /* Override Scene 4 container to full viewport width/height */
 #scene4.scene.active {
@@ -228,12 +228,16 @@ body {
 }
 /*Expand only the SVG inside Scene2 */
 #scene2 svg {
-  width: 80vw;       /* Cover 80% of the viewport width */
-  max-width: none;   /* Cancel any previous 600px limit */
-  height: 60vh;      /* Use 60% of viewport height */
-  padding: 0.5em;
-  overflow: visible; /* Let axis labels remain fully visible */
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  padding: 1em;
+  display: block;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow: visible;
 }
+
 
 #scene3.scene{
  max-width: 1550px;
@@ -672,4 +676,18 @@ svg text {
   position: relative;
   z-index: 1;
 }
+
+
+#explore-parallel {
+  width: 100%;
+  height: 340px;
+  overflow: visible;
+}
+
+#scene4 h2 {
+  margin-top: 25rem;   
+  margin-bottom: 1.5rem;
+}
+
+
 

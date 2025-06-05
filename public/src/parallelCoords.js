@@ -12,7 +12,6 @@ class ParallelCoordinates {
             margin: { top: 120, right: 70, bottom: 30, left: 110 },
             width: 1290,
             height: 500,
-            ...options
         };
         
         // Global variables
@@ -112,27 +111,35 @@ class ParallelCoordinates {
     // Main drawing function
     async draw() {
         const svg = d3.select(`#${this.containerId}`);
-        const width = this.config.width - this.config.margin.left - this.config.margin.right;
-        const height = this.config.height - this.config.margin.top - this.config.margin.bottom;
-        
-        // Clear existing content
+        const svgWidth = 900;
+        const svgHeight = 340;
+
+        svg.attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
+
+        const margin = { top: 120, right: 130, bottom: 50, left: 60 };
+        const width = svgWidth - margin.left - margin.right;
+        const height = svgHeight - margin.top - margin.bottom;
+
         svg.selectAll("*").remove();
-        
-        // Add title
-        svg.append("text")
-            .attr("x", this.config.width / 2)
-            .attr("y", this.config.margin.top / 2)
+
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Title (inside g group, horizontally centered)
+        g.append("text")
+            .attr("x", width / 2)
+            .attr("y", -margin.top / 2.2)
             .attr("text-anchor", "middle")
             .style("font-size", "18px")
             .style("font-weight", "bold")
-            .style("fill", "#2c3e50")
+            .style("fill", "#ffffff")
             .text("State-Level Crime Analysis: Multi-Dimensional Comparison");
 
+        // Continue with your drawing code (lines, axes, brushes, etc.)
+
+
         
-        
-        // Create main group
-        const g = svg.append("g")
-            .attr("transform", `translate(${this.config.margin.left},${this.config.margin.top})`);
         
         // Create scales
         this.scales = {};
@@ -179,7 +186,8 @@ class ParallelCoordinates {
             .style("fill", "none")
             .style("stroke", d => this.colorScale(d.population_tier))
             .style("stroke-width", 2.0)
-            .style("opacity", d => this.currentFilters.states.length === 0 || this.currentFilters.states.includes(d.state) ? 0.8 : 0.3);
+            .style("display", d => this.currentFilters.states.length === 0 || this.currentFilters.states.includes(d.state) ? null : "none");
+
         
         // Add state labels for highlighted states
         g.append("g")
@@ -238,14 +246,6 @@ class ParallelCoordinates {
         
         // Add tooltips
         this.addTooltips(foreground);
-        
-        // Add instructions
-        svg.append("text")
-            .attr("x", this.config.margin.left)
-            .attr("y", this.config.height - 10)
-            .style("font-size", "11px")
-            .style("fill", "#7f8c8d")
-            .text("💡 Drag vertically on axes to filter • Use controls to compare states • Hover for details");
     }
 
     // Handle brush filtering
@@ -294,7 +294,7 @@ class ParallelCoordinates {
     addLegend(svg, width) {
         const legend = svg.append("g")
             .attr("class", "legend")
-            .attr("transform", `translate(${width + this.config.margin.left + 20}, ${this.config.margin.top + 30})`);
+            .attr("transform", `translate(${width + this.config.margin.left}, ${this.config.margin.top + 30})`);
         
         const legendItems = legend.selectAll(".legend-item")
             .data(this.colorScale.domain())

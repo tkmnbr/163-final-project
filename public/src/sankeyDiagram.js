@@ -19,9 +19,14 @@ export function drawSankeyDiagram(selector, data) {
   It Select the SVG and clear out old contents
 *******************************************************************************************/
   const svg = d3.select(selector);
-  svg.selectAll("*").remove();
-  const width = +svg.attr("width");
-  const height = +svg.attr("height");
+  const svgWidth = 1100;
+  const svgHeight = 400;
+  svg.attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+    .attr("preserveAspectRatio", "xMidYMid meet");
+
+  const margin = { top: 40, right: 30, bottom: 40, left: 30 };
+  const width = svgWidth - margin.left - margin.right;
+  const height = svgHeight - margin.top - margin.bottom;
 
   // Color scale for nodes
   const color = d3.scaleOrdinal(d3.schemeCategory10);

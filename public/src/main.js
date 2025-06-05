@@ -28,6 +28,22 @@ const sankeyData = {
   ]
 };
 /*************************************************************/
+
+
+const abbrToFullName = {
+  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California",
+  CO: "Colorado", CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia",
+  HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa",
+  KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland",
+  MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", MO: "Missouri",
+  MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
+  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio",
+  OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina",
+  SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont",
+  VA: "Virginia", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
+  DC: "District of Columbia"
+};
+
 // main.js
 
 // =======================================
@@ -119,12 +135,13 @@ async function initScene4() {
   stateSelect.property("value", ""); // default to “All”
 
   // 5) Attach change listeners to all three dropdowns
-  startYearSelect.on("change", updateExploreVis);
-  endYearSelect.on("change",   updateExploreVis);
-  stateSelect.on("change",     updateExploreVis);
+  startYearSelect.on("change", async () => await updateExploreVis());
+  endYearSelect.on("change", async () => await updateExploreVis());
+  stateSelect.on("change", async () => await updateExploreVis());
+
 
   // 6) Initial render
-  updateExploreVis();
+  await updateExploreVis(); // If inside an async function like initScene4
 }
 
 /**
@@ -135,7 +152,7 @@ async function initScene4() {
  *   - Aggregates “aggravated_assault” per year if “All”.
  *   - Sends final [ { year: Date, count: Number } ] → drawExploreLine().
  */
-function updateExploreVis() {
+async function updateExploreVis() {
   // 1) Read selected values
   let fromYear = +document.getElementById("explore-start-year").value;
   let toYear   = +document.getElementById("explore-end-year").value;
@@ -151,51 +168,74 @@ function updateExploreVis() {
   d3.select("#explore-chart").selectAll("*").remove();
 
   // 4) Load the CSV and process
-  d3.csv("processed/estimated_crimes_1979_2023.csv", d => ({
-      year:             +d.year,
-      state:            d.state_abbr,           // e.g. "CA"
-      aggravated_assault: +d.aggravated_assault  // the column we care about
-    }))
-    .then(rawData => {
-      // 5) Filter by year range first
-      const inRange = rawData.filter(d => d.year >= fromYear && d.year <= toYear);
+  try {
+    const rawData = await d3.csv("processed/estimated_crimes_1979_2023.csv", d => ({
+      year: +d.year,
+      state: d.state_abbr,
+      aggravated_assault: +d.aggravated_assault
+    }));
 
-      let aggregatedByYear;
-      if (selectedState === "") {
-        // Case “All”: group by year, sum across all states
-        const rollupMap = d3.rollup(
-          inRange,
-          v => d3.sum(v, d => d.aggravated_assault),
-          d => d.year
-        );
-        aggregatedByYear = Array.from(rollupMap, ([year, sum]) => ({ year, count: sum }));
-      } else {
-        // Case “single state”: filter to that state, then still group by year
-        const onlyThisState = inRange.filter(d => d.state === selectedState);
-        const rollupMap = d3.rollup(
-          onlyThisState,
-          v => d3.sum(v, d => d.aggravated_assault),
-          d => d.year
-        );
-        aggregatedByYear = Array.from(rollupMap, ([year, sum]) => ({ year, count: sum }));
+    const inRange = rawData.filter(d => d.year >= fromYear && d.year <= toYear);
+
+    let aggregatedByYear;
+    if (selectedState === "") {
+      const rollupMap = d3.rollup(
+        inRange,
+        v => d3.sum(v, d => d.aggravated_assault),
+        d => d.year
+      );
+      aggregatedByYear = Array.from(rollupMap, ([year, sum]) => ({ year, count: sum }));
+    } else {
+      const onlyThisState = inRange.filter(d => d.state === selectedState);
+      const rollupMap = d3.rollup(
+        onlyThisState,
+        v => d3.sum(v, d => d.aggravated_assault),
+        d => d.year
+      );
+      aggregatedByYear = Array.from(rollupMap, ([year, sum]) => ({ year, count: sum }));
+    }
+
+    aggregatedByYear.sort((a, b) => a.year - b.year);
+
+    const chartData = aggregatedByYear.map(d => ({
+      year: d3.timeParse("%Y")(String(d.year)),
+      count: d.count
+    }));
+
+    drawExploreLine(chartData);
+    adjustScene4Height();
+
+    const pc = new ParallelCoordinates("explore-parallel");
+    await pc.initialize();
+
+    if (selectedState !== "") {
+      const fullName = abbrToFullName[selectedState]; // map CA → California
+      if (fullName) {
+        pc.highlightStates([fullName]);
       }
+    }
 
-      // 6) Sort by year ascending
-      aggregatedByYear.sort((a, b) => a.year - b.year);
+  } catch (error) {
+    console.error("Error loading estimated_crimes_1979_2023.csv:", error);
+    drawExploreLine([]);
+  }
 
-      // 7) Convert to [{ year: Date, count: Number }, … ]
-      const chartData = aggregatedByYear.map(d => ({
-        year:  d3.timeParse("%Y")(String(d.year)),
-        count: d.count
-      }));
+  function adjustScene4Height() {
+    const scene4 = document.getElementById("scene4");
+    const parallel = document.getElementById("explore-parallel");
 
-      // 8) Draw the line (or “No data” if empty)
-      drawExploreLine(chartData);
-    })
-    .catch(error => {
-      console.error("Error loading estimated_crimes_1979_2023.csv:", error);
-      drawExploreLine([]); // show “No data for this selection”
-    });
+    if (scene4 && parallel) {
+      // Get how far the bottom of explore-parallel extends relative to scene4
+      const scene4Rect = scene4.getBoundingClientRect();
+      const parallelRect = parallel.getBoundingClientRect();
+
+      const neededHeight = parallelRect.bottom - scene4Rect.top + 40; // add padding
+
+      scene4.style.minHeight = `${neededHeight}px`;
+    }
+  }
+
+
 }
 
 /**
@@ -208,13 +248,14 @@ function updateExploreVis() {
 function drawExploreLine(data) {
   // 1) Grab the SVG itself and read its width/height attributes
   const svg = d3.select("#explore-chart");
-  const width  = +svg.attr("width");
-  const height = +svg.attr("height");
+  const svgWidth = 1100;
+  const svgHeight = 500;
+  svg.attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+    .attr("preserveAspectRatio", "xMidYMid meet");
 
-  // 2) Define margins to avoid label/tick overlap
   const margin = { top: 50, right: 30, bottom: 70, left: 80 };
-  const innerWidth  = width  - margin.left - margin.right;
-  const innerHeight = height - margin.top  - margin.bottom;
+  const innerWidth  = svgWidth - margin.left - margin.right;
+  const innerHeight = svgHeight - margin.top  - margin.bottom;
 
   // ──────────────────────────────────────────────────────────────────────────────
   // title
@@ -222,7 +263,7 @@ function drawExploreLine(data) {
   svg.selectAll("text.chart-title").remove(); // (optional) clear any existing title
   svg.append("text")
     .attr("class", "chart-title")
-    .attr("x", width / 2)                  // center horizontally
+    .attr("x", svgWidth / 2)
     .attr("y", margin.top / 2)             // halfway down the top margin
     .attr("text-anchor", "middle")
     .attr("font-size", "16px")
@@ -283,7 +324,7 @@ function drawExploreLine(data) {
     .attr("text-anchor", "middle")
     .attr("font-size", "12px")
     .attr("fill", "yellow")
-    .text("Offender Count");
+    .text("Aggrevated Assault Count");
 
   // this is for  X axis label (“Year”) below the ticks, centered
   g.append("text")
@@ -352,7 +393,10 @@ function drawExploreLine(data) {
           .on("end", () => tt.style("display", "none"));
       }
     });
+
+    
 }
+
 
 // =======================================
 // Button listeners for Scene navigation
@@ -377,7 +421,7 @@ document.getElementById("btn-next-3").addEventListener("click", () => {
 });
 document.getElementById("btn-prev-4").addEventListener("click", () => {
   showScene(2);
-  main();
+  initScene3();
 });
 
 // =======================================
