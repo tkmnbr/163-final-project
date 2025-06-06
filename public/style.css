@@ -1,171 +1,362 @@
 /*******************************************************************
 * Dashboard background and centering
-* 
-* The body covers the full viewport height with a gradient background.
 ********************************************************************/
 body {
   font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
   background: linear-gradient(135deg, #050505 0%, #070011 100%);
   color: hsl(289, 93%, 49%);
-  min-height: 1000vh;
+  min-height: 100vh;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 /*******************************************************************
-* Dashboard header styling
-* The header spans the full viewport width with bold, colored text.
+* Main container
 ********************************************************************/
-.dashboard-header {
-  background: #a30b75;
-  color: #ffffff;
-  font-size: 2.1rem;
-  font-weight: bold;
-  letter-spacing: 0.03em;
-  padding: 0.8em 2em 0.8em 2em;
-  border-radius: 18px 18px 0 0; /* rounded top corners like a tab */
-  margin: 0 auto 2em auto;
-  text-align: center;
-  width: fit-content; /* Makes it look like a tab, not full width */
-  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3), 0 6px 16px rgba(244, 11, 178, 0.4);
-  position: relative;
-  top: 2px;
-  z-index: 10;
-  border: 2px solid #de08b4;
-}
-.dashboard-header:hover {
-  background: #be29aa;
-  cursor: pointer;
-}
-
-/***************************************************************************************
-* Dashboard container for true centering
-* Uses flexbox to center; container itself is larger than viewport width.
-******************************************************************************************/
-.dashboard-container {
-  min-height: 1000vh;
-  width: 2000vw;
+main {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* vertical centering */
+  justify-content: center;
   position: relative;
-  box-shadow: 0 14px 10px rgba(11, 31, 249, 0.16); /* shadow for entire dashboard */
+  padding: 2rem;
+  box-sizing: border-box;
+  width: 100%;
 }
+
 /*******************************************************************
-* Martini Glass Structure: Only one scene visible, smooth fade, no slipping
-* 
-* Each .scene is hidden by default and fades in when .active.
+* Scene styling - Only one scene visible at a time
 ********************************************************************/
 .scene {
-  display: auto;
+  display: none;
   opacity: 0;
-  transition: opacity 0.5s cubic-bezier(.4,0,.2,1);
+  transition: opacity 0.5s ease;
   background: #1b1b1f;
   border-radius: 18px;
   box-shadow: 0 8px 32px rgba(51, 1, 63, 0.22), 0 2px 12px rgba(229, 149, 149, 0.12);
-  border: 1.5px solid #6de830;
+  border: 2px solid #6de830;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
   box-sizing: border-box;
-  display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 600px;
   position: relative;
 }
 
-/* When a scene is active, fade it in and bring it to the front */
 .scene.active {
-  display: flex;
-  opacity: 1;
+  display: flex !important;
+  opacity: 1 !important;
   border-color: #067779;
-  z-index: 18;
 }
 
 /*******************************************************************
 * Scene content styling
-* 
-* Large, colored headings and centered paragraph text.
 ********************************************************************/
 .scene h2 {
   color: #fde109dc;
   font-size: 2rem;
-  margin-bottom: 4%;
+  margin-bottom: 1rem;
   text-align: center;
+  background-color: #030143;
+  padding: 15px 25px;
+  border-radius: 10px;
+  border: 2px solid #0ad6d6;
+  display: inline-block;
+  position: relative;
+  z-index: 1;
 }
+
 .scene p {
   color: #06eaf2fb;
   text-align: center;
-  margin-bottom: 3%;
+  margin-bottom: 2rem;
   font-size: 1.1em;
+  line-height: 1.5;
 }
 
 /*******************************************************************
-* Base Chart SVG styling for Scenes 1–3
-* 
-* Each SVG is centered within its scene, has a dark background,
-* and is constrained to a maximum width of 600px.
+* SVG styling
 ********************************************************************/
 .scene svg {
   background: #000208;
   border-radius: 17px;
   box-shadow: 0 0 20px 10px rgba(150, 251, 152, 0.131);
-  margin: 1.2em auto 0 auto;
+  margin: 1rem auto;
   display: block;
   width: 100%;
-  max-width: 100%; /* Original fixed max */
-  height: auto;    
+  max-width: 1200px;
+  height: auto;
   padding: 1em;
-  overflow: visible; /* Allow axis labels to overflow if needed */
+  overflow: visible;
 }
 
 /*******************************************************************
-* Scene 4 (Explore Mode) overrides
-* 
-* Expands the Scene 4 container to occupy full viewport width/height,
-* and makes its SVG much larger and full-width.
+* Controls styling
 ********************************************************************/
-
-
-
-/* Override Scene 4 container to full viewport width/height */
-#scene4.scene.active {
-  /* Disable default width constraints */
-  max-width: 100vw !important;
-  min-width: 100vw !important;
-  /* Increase padding inside container */
-  padding: 2rem !important;
-  box-sizing: border-box;
-  /* Make container as tall as viewport */
-  min-height: 100vh !important;
-  /* Remove margin that centers generic scenes */
-  margin: 0 !important;
+#controls {
+  margin: 1.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
-/* Expand only the SVG inside Scene 4 to nearly full width/height */
-/*#scene4 svg {
- ?8 width: 87vw;       /* Cover 95% of viewport width */
- /* max-width: none;   /* Remove 600px limit */
- /* height: 60vh;      /* Use 70% of viewport height */
- /* padding: 0.5em;
-  overflow: visible; /* Ensure axis labels are not clipped */
-/*}
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-direction: column;
+}
 
+.control-group label {
+  font-size: 1em;
+  color: #bafa08;
+  white-space: nowrap;
+  font-weight: bold;
+}
 
-/*********************************************************************
-* Scene 2 (State Comparison) overrides to expand the canvas
-* 
-* - Make the Scene 2 container as wide as the viewport (or close to it)
-* - Make the Scene 2 SVG fill most of that width and a good portion of height
-* - Ensure axis labels / lines do not overflow
-*********************************************************************/
+select {
+  font-size: 1em;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 2px solid #280387ac;
+  background: #530389;
+  color: #bcf905;
+  min-width: 120px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+select:hover {
+  background: #c8cb0a;
+  border-color: #de0760;
+  color: #000;
+  transform: translateY(-1px);
+}
+
+select:focus {
+  outline: none;
+  border-color: #06eaf2fb;
+  box-shadow: 0 0 5px rgba(6, 234, 242, 0.5);
+}
+
+/*******************************************************************
+* Navigation buttons
+********************************************************************/
+.navigation {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+button {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  border: 2px solid #067779;
+  background: #1b1b1f;
+  color: #06eaf2fb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  min-width: 120px;
+}
+
+button:hover {
+  background: #067779;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(6, 119, 121, 0.3);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(6, 119, 121, 0.5);
+}
+
+/*******************************************************************
+* Scene 4 specific styling
+********************************************************************/
+.explore-background {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+}
+
+#explore-parallel-container {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+#explore-parallel {
+  width: 100%;
+  height: 340px;
+  overflow: visible;
+}
+
+/*******************************************************************
+* Tooltip styling
+********************************************************************/
+.tooltip {
+  position: fixed;
+  background: rgba(11, 2, 104, 0.95);
+  color: #c4e108;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  font-size: 14px;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  max-width: 300px;
+  word-wrap: break-word;
+  border: 1px solid #c4e108;
+  display: none;
+}
+
+.tooltip.visible {
+  display: block;
+  opacity: 1;
+}
+
+/* Additional tooltip for parallel coordinates */
+.pc-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  color: #ffffff;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  max-width: 250px;
+  line-height: 1.4;
+}
+
+/*******************************************************************
+* Chart-specific styling
+********************************************************************/
+/* Axis and text styling */
+svg text {
+  fill: #ffee05 !important;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #ffffff;
+  shape-rendering: crispEdges;
+}
+
+/* Chart elements */
+.line {
+  fill: none;
+  stroke: #ff4757;
+  stroke-width: 2px;
+}
+
+.dot {
+  fill: #ffa502;
+  stroke: #ff4757;
+  stroke-width: 2px;
+}
+
+.dot:hover {
+  fill: #ffee05;
+  stroke-width: 3px;
+}
+
+/* Parallel coordinates styling */
+.parallel-line {
+  stroke-width: 2px;
+  opacity: 0.8;
+  transition: opacity 0.2s, stroke-width 0.2s;
+}
+
+.parallel-line:hover {
+  opacity: 1;
+  stroke-width: 3px;
+}
+
+/* Sankey diagram styling */
+.sankey-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.node rect {
+  fill-opacity: 0.9;
+  stroke: #73e21f;
+  stroke-width: 2px;
+}
+
+.node text {
+  font-size: 12px;
+  fill: #ffffff;
+  font-weight: bold;
+}
+
+.link {
+  fill: none;
+  stroke-opacity: 0.6;
+  transition: stroke-opacity 0.3s;
+}
+
+.link:hover {
+  stroke-opacity: 0.9;
+}
+
+/*******************************************************************
+* Legend styling
+********************************************************************/
+.legend {
+  font-size: 11px;
+}
+
+.legend text {
+  fill: #ffffff !important;
+}
+
+.legend-item {
+  cursor: pointer;
+}
+
+.legend-item:hover text {
+  fill: #ffee05 !important;
+}
+
+/*******************************************************************
+* Scene-specific overrides
+********************************************************************/
+/* Scene 1 styling */
+#scene1 svg {
+  max-width: 1000px;
+}
+
+/* Scene 2 styling */
 #scene2 .axis text,
-#scene2 .dimension text,   
-#scene2 .background text,  
-#scene2 .foreground text 
-{
+#scene2 .dimension text {
   fill: #13c1f1 !important;
 }
 
@@ -174,520 +365,174 @@ body {
   stroke: #ffffff !important;
 }
 
-#scene2 .legend text {
-  fill: #ffffff !important;
-}
-
-#scene2 text {
-  fill: #ffffff !important;
-}
-
-#scene2 svg {
-  display: block;       
-  margin-left: auto;   
-  margin-right: auto;
-}
-
-
-/* 1) Override the Scene2 container to span almost full viewport width 
-#scene2.scene.active {
-  /* Disable the default max-width:700px limitation */
- /* max-width: 95vw !important;
-  min-width: 95vw !important;
-  /* Increase padding so contents have breathing room */
-/*  padding: 2rem !important;
-  box-sizing: border-box;
-  /* Make container tall enough for the wide SVG */
-/*  min-height: 90vh !important;
-  /* Remove default auto margin to avoid centering shrinkage */
- /* margin: 0 !important;
-}
- */
-
-
- /* Scenes 1,3,4for original sizing */
-#scene1.scene{
-  max-width: 1550px;
-  min-width: 1250px;
-  min-height: 540px;
-  max-height: 540;
-}
-/* Expand only the SVG inside Scene1 */
-#scene1 svg {
-  width: 60vw;       /* Cover 90% of the viewport width */
-  max-width: 60;   /* Cancel any previous 600px limit */
-  height: 45vh;      /* Use 70% of viewport height */
-  padding: 1.2em;
-  overflow: visible; /* Let axis labels remain fully visible */
-}
-
-#scene2.scene{
-  max-width: 1550px;
-  min-width: 1250px;
-  min-height: 540px;
-}
-/*Expand only the SVG inside Scene2 */
-#scene2 svg {
-  width: 100%;
-  max-width: 900px;
-  height: auto;
-  padding: 1em;
-  display: block;
-  margin: 0 auto;
-  box-sizing: border-box;
-  overflow: visible;
-}
-
-
-#scene3.scene{
- max-width: 1550px;
-  min-width: 1250px;
-  max-height: 560;
-  min-height: 540px;
-}
-/* Expand only the SVG inside Scene3 */
+/* Scene 3 styling */
 #scene3 svg {
-  width: 50;       /* Cover 70% of the viewport width */
-  max-width: 50;   /* Cancel any previous 600px limit */
-  height: 40vh;      /* Use 50% of viewport height */
-  padding: 1.2em;
-  overflow: visible; /* Let axis labels remain fully visible */
+  max-width: 1000px;
 }
 
-#scene4.scene {
- max-width: 1550px;
-  min-width: 1255px;
-  min-height: 560px;
+/* Scene 4 styling */
+#scene4 {
+  min-height: 800px;
 }
-/*Expand only the SVG inside Scene4 */
+
 #scene4 svg {
-  width: 65vw;       /* Cover 65% of the viewport width */
-  max-width: 80;   /* Cancel any previous 600px limit */
-  height: 50vh;      /* Use 50% of viewport height */
-  padding: 1.2em;
-  overflow: visible; /* Let axis labels remain fully visible */
+  max-width: 1000px;
 }
-
-/*********************************************************************
-* Chart element style adjustments
-* 
-* - Thinner stroke for parallel‐coordinate lines  
-* - Let each path use a distinct state color
-********************************************************************/
-.parallel-line {
-  stroke-width: 0.7px;  /* Make lines thinner in Scene2 */
-  opacity: 0.7;
-  transition: opacity 0.2s, stroke-width 0.2s;
-}
-.parallel-line:hover {
-  opacity: 1;
-  stroke-width: 1.4px;  /* Slightly thicker on hover */
-}
-
-/* If you used a generic ".line" class before, you can override it here */
-#scene2 .line {
-  stroke-width: 0.7px !important;
-  opacity: 0.7;
-}
-#scene2 .line:hover {
-  stroke-width: 1.4px !important;
-  opacity: 1 !important;
-}
-
-
 
 /*******************************************************************
-* Controls, Inputs, and Chart Elements styling
-* 
-* Layout and styles for dropdowns, sliders, and custom chart classes.
+* Responsive design
 ********************************************************************/
-#controls, .slider-wrapper {
-  margin: 1.5em 0 0.5em 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5em;
-  align-items: center;
-  justify-content: center;
-}
-.control-group label {
-  font-size: 1em;
-  color: #bafa08;
-  margin-right: 0.2em;
-}
-select, input[type="range"] {
-  font-size: 1em;
-  padding: 0.3em 0.7em;
-  border-radius: 6px;
-  border: 2.1px solid #280387ac;
-  background: #530389;
-  color: #bcf905;
-  transition: background 0.2s, border 0.2s;
-}
-select:hover, input[type="range"]:hover {
-  background: #c8cb0a;
-  border-color: #de0760;
-}
-
-/* Chart element styles */
-.line {
-  fill: none;
-  stroke: #b92935;
-  stroke-width: 10px;
-}
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #fcf7f7;
-  shape-rendering: crispEdges;
-}
-.axis text {
-  font-size: 14px;
-  fill: #11eff7e8; /* Bright yellow for visibility */
-}
-.dot {
-  fill: #16f9db;
-  stroke: #cd2d2d;
-  stroke-width: 2px;
-}
-.parallel-line {
-  stroke-width: 2%;
-  opacity: 0.8;
-  transition: opacity 0.2s;
-}
-.parallel-line:hover {
-  opacity: 1;
-  stroke-width: 4px;
-}
-.node rect {
-  fill-opacity: 0.90;
-  stroke: #73e21f;
-  stroke-width: 2px;
-}
-.node text {
-  font-size: 16px;
-  fill: #2c3e50;
-  font-weight: bold;
-}
-.link {
-  fill: none;
-  stroke-opacity: 0.5;
-  transition: stroke-opacity 0.2s;
-}
-.link:hover {
-  stroke-opacity: 0.9;
-}
-.tooltip {
-  position: fixed;
-  background: #0b0268;
-  color: #c4e108;
-  padding: 0.7em 1em;
-  border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(204, 16, 16, 0.12);
-  pointer-events: none;
-  font-size: 16px;
-  z-index: 9999;       
-  /* display: block;
-  /* opacity: 0;*/
-  transition: opacity 0.2s ease;
-}
-
-/*********************************************************************
-* Per-chart legends and color brackets
-* 
-* Defines legend container and colored swatches for charts.
-**********************************************************************/
-.chart-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.2em;
-  justify-content: center;
-  align-items: center;
-  margin: 0.8em 0 0.2em 0;
-  font-size: 1.1em;
-  background: #1c0950;
-  border-radius: 10px;
-  box-shadow: 0 0 10px 20px rgba(244, 240, 243, 0.717);
-  padding: 0.5em 1.2em;
-}
-.legend-color {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  margin-right: 0.4em;
-  vertical-align: middle;
-  border: 2px solid #621a1a;
-}
-.line-color        { background: #b929aa; }
-.dot-color         { background: #e67e22; }
-.parallel-color    { background: #2980b9; }
-.sankey-node-color { background: #f4f8fb; border: 2px solid #34495e; }
-.sankey-link-color { 
-  background: linear-gradient(90deg, #2980b9 50%, #34495e 100%);
-  opacity: 0.5;
-}
-.explore-color     { background: #e83042; }
-
-/*********************************************************************
-* Responsive adjustments for smaller screens
-* Tweak container, scene, and SVG sizes on narrow viewports.
-**********************************************************************/
-@media (max-width: 700px) {
-  .dashboard-container {
-    padding: 1rem 0.2rem;
-    min-height: 400px;
-    box-shadow: 0 20px 32px rgba(244, 243, 243, 0.18);
-  }
+@media (max-width: 1200px) {
   .scene {
-    padding: 1.2rem 0.5rem;
-    max-width: 99vw;
-    min-height: 320px;
-    box-shadow: 0 16px 40px rgba(248, 245, 245, 0.25), 0 2px 12px rgba(244, 237, 237, 0.12);
+    max-width: 95%;
+    padding: 1.5rem;
   }
+  
   .scene svg {
-    width: 98vw;
-    height: 220px;
-  }
-  .dashboard-header {
-    font-size: 1.1rem;
-    padding: 0.7em 0.5em;
+    max-width: 100%;
   }
 }
 
-/*********************************************************************
-* Dashboard centering and anti-slip enhancement
-* 
-* Ensures main container fills the viewport and centers child elements.
+@media (max-width: 768px) {
+  main {
+    padding: 1rem;
+  }
+  
+  .scene {
+    padding: 1rem;
+    max-width: 100%;
+    min-height: 500px;
+  }
+  
+  .scene h2 {
+    font-size: 1.5rem;
+    padding: 10px 15px;
+    margin-bottom: 0.8rem;
+  }
+  
+  .scene p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  #controls {
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  
+  .control-group {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  select {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .navigation {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  button {
+    width: 100%;
+    max-width: 200px;
+    min-width: auto;
+  }
+  
+  .scene svg {
+    padding: 0.5rem;
+  }
+  
+  .explore-background {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .scene {
+    padding: 0.8rem;
+  }
+  
+  .scene h2 {
+    font-size: 1.2rem;
+    padding: 8px 12px;
+  }
+  
+  .scene p {
+    font-size: 0.9rem;
+  }
+  
+  button {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  select {
+    padding: 0.4rem;
+    font-size: 0.9rem;
+  }
+  
+  .tooltip {
+    font-size: 12px;
+    padding: 0.6rem 0.8rem;
+    max-width: 250px;
+  }
+}
+
+/*******************************************************************
+* Animation and transitions
 ********************************************************************/
-main {
-  min-height: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-/* it is djustments to .scene when active/inactive */
 .scene {
-  margin: 0 !important;
-  box-sizing: border-box;
-  box-shadow: 0 0 20px 10px rgba(248, 195, 4, 0.354);
-}
-.scene:not(.active) {
-  display: none !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-.scene.active {
-  display: flex !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 2rem auto !important; 
-  max-width: 1500px;
-  min-width: 600px;
-  min-height: 800px;
-  box-sizing: border-box;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
-/*********************************************************************
-* Ensure html, body, and main elements fill the viewport
-*********************************************************************/
-html, body, main {
-  height: 100%;
-  min-height: 100vh;
-}
-main {
-  width: 100vw;
-  min-width: 100vw;
-  min-height: 100vh;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/*********************************************************************
-* Axis label styling for all SVG text
-* 
-* Make axis labels bold and yellow for better visibility.
-*********************************************************************/
-svg text {
-  fill: #ffee05;
-  font-size: 1.2em;
-  font-weight: bold;
-  margin: 1rem auto !important;
-}
-/* this is Tab-like heading styles */
-.scene h2 {
-  display: inline-block;
-  padding: 10px 20px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  font-size: 1.5em;
-  border-bottom: none;
-  margin-bottom: -1px;
-  position: relative;
-  z-index: 1;
-}
-/* This section is scene container to show a subtle tab panel */
-.scene {
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  position: relative;
-  z-index: 0;
-}
-/* Tab-like heading styles */
-.scene h2 {
-  display: inline-block;
-  background-color: #e50ac8; /* Light gray tab */
-  padding: 10px 20px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  font-size: 1.5em;
-  border: 2px solid #ccc;
-  border-bottom: none;
-  margin-bottom: -1px;
-  position: relative;
-  z-index: 1;
+/* Smooth transitions for interactive elements */
+* {
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-/* Optional: scene container to show a subtle tab panel */
-.scene {
-  border: 2px solid #ccc;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  background-color: white;
-  position: relative;
-  z-index: 0;
-}
-/* Tab-like heading styles */
-.scene h2 {
-  display: inline-block;
-  background-color: #f0f0f0; /* Light gray tab */
-  padding: 10px 20px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  font-size: 1.5em;
-  border: 2px solid #ccc;
-  border-bottom: none;
-  margin-bottom: -1px;
-  position: relative;
-  z-index: 1;
+/* Focus indicators for accessibility */
+button:focus,
+select:focus {
+  outline: 2px solid #06eaf2fb;
+  outline-offset: 2px;
 }
 
-/* Optional: scene container to show a subtle tab panel */
-.scene {
-  border: 2px solid #ccc;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  background-color: white;
-  position: relative;
-  z-index: 0;
+/*******************************************************************
+* Print styles
+********************************************************************/
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .scene {
+    background: white;
+    border: 1px solid black;
+    box-shadow: none;
+  }
+  
+  .navigation {
+    display: none;
+  }
+  
+  #controls {
+    display: none;
+  }
 }
-/* Tab-like heading styles */
-.scene h2 {
-  display: inline-block;
-  background-color: #f0f0f0; /* Light gray tab */
-  padding: 10px 20px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  font-size: 1.5em;
-  border: 2px solid #ccc;
-  border-bottom: none;
-  margin-bottom: -1px;
-  position: relative;
-  z-index: 1;
-}
-
-/* Optional: scene container to show a subtle tab panel */
-.scene {
-  border: 2px solid #ccc;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  background-color: white;
-  position: relative;
-  z-index: 0;
-}
-/* Tab-like heading styles */
-.scene h2 {
-  display: inline-block;
-  background-color: #f0f0f0; /* Light gray tab */
-  padding: 10px 20px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  font-size: 1.5em;
-  border: 2px solid #ccc;
-  border-bottom: none;
-  margin-bottom: -1px;
-  position: relative;
-  z-index: 1;
-}
-
-/* Optional: scene container to show a subtle tab panel */
-.scene {
-  border: 2px solid #ccc;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  background-color: white;
-  position: relative;
-  z-index: 0;
-}
-
-/* Tab-like heading styles */
-.scene h2 {
-  display: inline-block;
-  background-color: #030143; /* Light gray tab */
-  padding: 10px 20px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  font-size: 1.5em;
-  border: 1px solid #0ad6d6;
-  border-bottom: none;
-  margin-bottom: 2px;
-  position: relative;
-  z-index: 1;
-}
-
-/* Optional: scene container to show a subtle tab panel */
-.scene {
-  border: 2px solid #ffffff;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 5%;
-  background-color: rgb(0, 0, 24);
-  position: relative;
-  z-index: 1;
-}
-.scene h2 {
-  display: inline-block;
-   background-color: #030143; /* Light gray tab */
-  padding: 10px 20px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  font-size: 1.5em;
-  border: 2px solid #0ad6d6;
-  border-bottom: 2px solid #f0f0f0; /* Match the tab background color */
-  margin-bottom: -1px;
-  position: relative;
-  z-index: 1;
-}
-
-
-#explore-parallel {
-  width: 100%;
-  height: 340px;
-  overflow: visible;
-}
-
-#scene4 h2 {
-  margin-top: 25rem;   
-  margin-bottom: 1.5rem;
-}
-
-
-
