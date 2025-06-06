@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aggravated Assault Visualization</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
   <main>
     <!-- Scene 1: National Trends -->
@@ -23,8 +23,6 @@
       <h2>Scene 2: State Comparison</h2>
       <p>Compare crime metrics across states using a parallel coordinates plot.</p>
       <svg id="parallel-coords" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet"></svg>
-
-
       <div class="navigation">
         <button id="btn-prev-2">Back: Scene 1</button>
         <button id="btn-next-2">Next: Scene 3</button>
@@ -37,9 +35,7 @@
       <p>Visualize the flow from weapon type to victim gender to arrest outcome using a Sankey diagram.</p>
       <div class="sankey-container">
         <svg id="sankey-diagram" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet"></svg>
-        
       </div>
-
       <div class="navigation">
         <button id="btn-prev-3">Back: Scene 2</button>
         <button id="btn-next-3">Next: Scene 4</button>
@@ -48,51 +44,39 @@
 
     <!-- Scene 4: Explore Mode -->
     <section id="scene4" class="scene">
-    <h2>Scene 4: Explore Mode</h2>
-    <p>Interactively filter data by a year range (start–end) and select a state.</p>
-
-    <div id="controls">
-      <div class="control-group">
-        <label for="explore-start-year">Start Year:</label>
-        <select id="explore-start-year"></select>
+      <h2>Scene 4: Explore Mode</h2>
+      <p>Interactively filter data by a year range (start–end) and select a state.</p>
+      <div id="controls">
+        <div class="control-group">
+          <label for="explore-start-year">Start Year:</label>
+          <select id="explore-start-year"></select>
+        </div>
+        <div class="control-group">
+          <label for="explore-end-year">End Year:</label>
+          <select id="explore-end-year"></select>
+        </div>
+        <div class="control-group">
+          <label for="explore-state">State:</label>
+          <select id="explore-state"></select>
+        </div>
       </div>
-      <div class="control-group">
-        <label for="explore-end-year">End Year:</label>
-        <select id="explore-end-year"></select>
+      <div class="explore-background">
+        <!-- Line chart -->
+        <svg id="explore-chart" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet"></svg>
+        <!-- Parallel coordinates container -->
+        <div id="explore-parallel-container">
+          <svg id="explore-parallel" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
       </div>
-      <div class="control-group">
-        <label for="explore-state">State:</label>
-        <select id="explore-state"></select>
+      <div class="navigation">
+        <button id="btn-prev-4">Back: Scene 3</button>
       </div>
-    </div>
-
-    <div class="explore-background">
-      <!-- Existing line chart -->
-      <svg id="explore-chart" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet"></svg>
-
-      <!-- Black canvas container -->
-      <div id="explore-parallel-container">
-        <svg id="explore-parallel" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet"></svg>
-      </div>
-    </div>
-
-
-    
-
-
-    <div class="navigation">
-      <button id="btn-prev-4">Back: Scene 3</button>
-    </div>
-  </section>
-
-
+    </section>
   </main>
+
   <!-- Tooltip container for all charts -->
-  <div class="tooltip" id="tooltip" style="display:none;"></div>
+  <div class="tooltip" id="tooltip"></div>
+  
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>
-
-
-
-<svg id="explore-chart" ...></svg
