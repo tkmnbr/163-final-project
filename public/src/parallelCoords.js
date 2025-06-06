@@ -9,9 +9,9 @@ class ParallelCoordinates {
     constructor(containerId, options = {}) {
         this.containerId = containerId;
         this.config = {
-            margin: { top: 120, right: 70, bottom: 30, left: 110 },
-            width: 1290,
-            height: 500,
+            margin: { top: 80, right: 120, bottom: 50, left: 80 },
+            width: 900,
+            height: 340,
         };
         
         // Global variables
@@ -63,29 +63,43 @@ class ParallelCoordinates {
         
         try {
             // Try to load processed data first
-            this.allData = await d3.csv("processed/state_analysis_simple.csv", d => ({
-                state: d.state,
-                state_abbr: d.state_abbr,
-                population: +d.population,
-                population_tier: d.population_tier,
-                total_assaults: +d.total_assaults,
-                assault_rate_per_100k: +d.assault_rate_per_100k,
-                firearm_percentage: +d.firearm_percentage,
-                arrest_rate: +d.arrest_rate,
-                avg_victim_age: +d.avg_victim_age,
-                male_victim_pct: +d.male_victim_pct,
-                years_analyzed: +d.years_analyzed
-            }));
-            console.log(`Loaded ${this.allData.length} states from processed data`);
+            try {
+                this.allData = await d3.csv("processed/state_analysis_simple.csv", d => ({
+                    state: d.state,
+                    state_abbr: d.state_abbr,
+                    population: +d.population,
+                    population_tier: d.population_tier,
+                    total_assaults: +d.total_assaults,
+                    assault_rate_per_100k: +d.assault_rate_per_100k,
+                    firearm_percentage: +d.firearm_percentage,
+                    arrest_rate: +d.arrest_rate,
+                    avg_victim_age: +d.avg_victim_age,
+                    male_victim_pct: +d.male_victim_pct,
+                    years_analyzed: +d.years_analyzed
+                }));
+                console.log(`Loaded ${this.allData.length} states from processed data`);
+            } catch (error) {
+                console.log('CSV not found, using sample data...');
+                this.allData = this.getSampleData();
+            }
+            
+            // Filter out invalid data
+            this.allData = this.allData.filter(d => 
+                d.state && 
+                !isNaN(d.total_assaults) && 
+                !isNaN(d.firearm_percentage) && 
+                !isNaN(d.arrest_rate) && 
+                !isNaN(d.avg_victim_age)
+            );
+            
+            this.filteredData = [...this.allData];
+            await this.draw();
+            
+            console.log('Parallel coordinates initialized successfully');
         } catch (error) {
-            console.log('Using sample data...');
-            this.allData = this.getSampleData();
+            console.error('Error initializing parallel coordinates:', error);
+            this.showError(error.message);
         }
-        
-        this.filteredData = [...this.allData];
-        await this.draw();
-        
-        console.log('Parallel coordinates initialized successfully');
     }
 
     // Sample data if processed file not available
@@ -111,57 +125,68 @@ class ParallelCoordinates {
     // Main drawing function
     async draw() {
         const svg = d3.select(`#${this.containerId}`);
-        const svgWidth = 900;
-        const svgHeight = 340;
+        const svgWidth = this.config.width;
+        const svgHeight = this.config.height;
 
         svg.attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
-        .attr("preserveAspectRatio", "xMidYMid meet");
+            .attr("preserveAspectRatio", "xMidYMid meet");
 
-        const margin = { top: 120, right: 130, bottom: 50, left: 60 };
+        const margin = this.config.margin;
         const width = svgWidth - margin.left - margin.right;
         const height = svgHeight - margin.top - margin.bottom;
 
+        // Clear previous content
         svg.selectAll("*").remove();
+
+        // Check if we have data
+        if (!this.filteredData || this.filteredData.length === 0) {
+            svg.append("text")
+                .attr("x", svgWidth / 2)
+                .attr("y", svgHeight / 2)
+                .attr("text-anchor", "middle")
+                .attr("fill", "white")
+                .attr("font-size", "16px")
+                .text("No data available");
+            return;
+        }
 
         const g = svg.append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        // Title (inside g group, horizontally centered)
+        // Title
         g.append("text")
             .attr("x", width / 2)
-            .attr("y", -margin.top / 2.2)
+            .attr("y", -margin.top / 2)
             .attr("text-anchor", "middle")
-            .style("font-size", "18px")
+            .style("font-size", "16px")
             .style("font-weight", "bold")
             .style("fill", "#ffffff")
             .text("State-Level Crime Analysis: Multi-Dimensional Comparison");
 
-        // Continue with your drawing code (lines, axes, brushes, etc.)
-
-
-        
-        
-        // Create scales
+        // Create scales for each dimension
         this.scales = {};
         this.dimensions.forEach(dim => {
-            this.scales[dim.key] = d3.scaleLinear()
-                .domain(d3.extent(this.filteredData, d => d[dim.key]))
-                .range([height, 0])
-                .nice();
+            const values = this.filteredData.map(d => d[dim.key]).filter(v => !isNaN(v));
+            if (values.length > 0) {
+                this.scales[dim.key] = d3.scaleLinear()
+                    .domain(d3.extent(values))
+                    .range([height, 0])
+                    .nice();
+            }
         });
-        
+
         // X scale for positioning dimensions
         const xScale = d3.scalePoint()
             .domain(this.dimensions.map(d => d.key))
             .range([0, width])
             .padding(0.1);
-        
+
         // Line generator
         const line = d3.line()
-            .defined(d => !isNaN(d[1]))
+            .defined(d => !isNaN(d[1]) && this.scales[d[0]])
             .x(d => xScale(d[0]))
             .y(d => this.scales[d[0]](d[1]));
-        
+
         // Draw background lines (all states, faded)
         g.append("g")
             .attr("class", "background")
@@ -174,7 +199,7 @@ class ParallelCoordinates {
             .style("stroke", "#bdc3c7")
             .style("stroke-width", 1)
             .style("opacity", 0.3);
-        
+
         // Draw foreground lines (highlighted states)
         const foreground = g.append("g")
             .attr("class", "foreground")
@@ -185,25 +210,12 @@ class ParallelCoordinates {
             .attr("d", d => line(this.dimensions.map(dim => [dim.key, d[dim.key]])))
             .style("fill", "none")
             .style("stroke", d => this.colorScale(d.population_tier))
-            .style("stroke-width", 2.0)
-            .style("display", d => this.currentFilters.states.length === 0 || this.currentFilters.states.includes(d.state) ? null : "none");
+            .style("stroke-width", 2)
+            .style("opacity", d => 
+                this.currentFilters.states.length === 0 || 
+                this.currentFilters.states.includes(d.state) ? 0.8 : 0.3
+            );
 
-        
-        // Add state labels for highlighted states
-        g.append("g")
-            .attr("class", "labels")
-            .selectAll("text")
-            .data(this.filteredData.filter(d => this.currentFilters.states.includes(d.state)))
-            .enter()
-            .append("text")
-            .attr("x", width + 10)
-            .attr("y", d => this.scales[this.dimensions[this.dimensions.length - 1].key](d[this.dimensions[this.dimensions.length - 1].key]))
-            .attr("dy", "0.35em")
-            .style("font-size", "11px")
-            .style("font-weight", "bold")
-            .style("fill", d => this.colorScale(d.population_tier))
-            .text(d => d.state);
-        
         // Create dimension axes
         const dimensionGroups = g.selectAll(".dimension")
             .data(this.dimensions)
@@ -211,98 +223,55 @@ class ParallelCoordinates {
             .append("g")
             .attr("class", "dimension")
             .attr("transform", d => `translate(${xScale(d.key)},0)`);
-        
+
         // Add axes
         dimensionGroups.append("g")
             .attr("class", "axis")
             .each((d, i, nodes) => {
-                d3.select(nodes[i]).call(d3.axisLeft(this.scales[d.key]).ticks(8));
+                if (this.scales[d.key]) {
+                    d3.select(nodes[i]).call(d3.axisLeft(this.scales[d.key]).ticks(6));
+                }
             })
-            .append("text")
-            .attr("y", -25)
+            .selectAll("text")
+            .style("fill", "#ffffff")
+            .style("font-size", "10px");
+
+        // Add axis lines
+        dimensionGroups.selectAll(".axis path, .axis line")
+            .style("stroke", "#ffffff");
+
+        // Add dimension labels
+        dimensionGroups.append("text")
+            .attr("y", -15)
             .attr("x", 0)
             .attr("text-anchor", "middle")
-            .style("font-size", "14px")
+            .style("font-size", "12px")
             .style("font-weight", "bold")
-            .style("fill", " #2c3e50")
+            .style("fill", "#ffffff")
             .text(d => d.label);
-        
-        // Add brushing
-        this.brushes = {};
-        dimensionGroups.each((d, i, nodes) => {
-            const dimensionGroup = d3.select(nodes[i]);
-            
-            this.brushes[d.key] = d3.brushY()
-                .extent([[-10, 0], [10, height]])
-                .on("brush end", () => this.handleBrush());
-            
-            dimensionGroup.append("g")
-                .attr("class", "brush")
-                .call(this.brushes[d.key]);
-        });
-        
+
         // Add legend
-        this.addLegend(svg, width);
-        
+        this.addLegend(svg, svgWidth, margin);
+
         // Add tooltips
         this.addTooltips(foreground);
-    }
 
-    // Handle brush filtering
-    handleBrush() {
-        const actives = [];
-        
-        this.dimensions.forEach((dim, i) => {
-            const brushElement = d3.selectAll(".dimension").nodes()[i]?.querySelector(".brush");
-            if (brushElement) {
-                const brush = d3.brushSelection(brushElement);
-                if (brush) {
-                    actives.push({
-                        dimension: dim.key,
-                        extent: brush.map(this.scales[dim.key].invert)
-                    });
-                }
-            }
-        });
-        
-        // Filter data based on brush selections
-        let brushedData = this.filteredData;
-        if (actives.length > 0) {
-            brushedData = this.filteredData.filter(d => {
-                return actives.every(active => {
-                    const value = d[active.dimension];
-                    return value >= active.extent[1] && value <= active.extent[0];
-                });
-            });
-        }
-        
-        // Update line visibility
-        d3.selectAll(".background path")
-            .style("opacity", d => brushedData.includes(d) ? 0.3 : 0.05);
-        
-        d3.selectAll(".foreground path")
-            .style("opacity", d => {
-                const inBrush = brushedData.includes(d);
-                const highlighted = this.currentFilters.states.length === 0 || this.currentFilters.states.includes(d.state);
-                return inBrush && highlighted ? 0.8 : 0.1;
-            })
-            .style("stroke-width", d => brushedData.includes(d) ? 2.5 : 1);
+        console.log(`Parallel coordinates drawn with ${this.filteredData.length} states`);
     }
 
     // Add legend
-        // Add legend (moved farther to the right so it no longer overlaps the 4th axis)
-    addLegend(svg, width) {
+    addLegend(svg, svgWidth, margin) {
         const legend = svg.append("g")
             .attr("class", "legend")
-            .attr("transform", `translate(${width + this.config.margin.left}, ${this.config.margin.top + 30})`);
-        
+            .attr("transform", `translate(${svgWidth - margin.right + 20}, ${margin.top + 30})`);
+
         const legendItems = legend.selectAll(".legend-item")
             .data(this.colorScale.domain())
             .enter()
             .append("g")
             .attr("class", "legend-item")
             .attr("transform", (d, i) => `translate(0, ${i * 20})`);
-        
+
         legendItems.append("line")
             .attr("x1", 0)
             .attr("x2", 20)
@@ -310,16 +279,16 @@ class ParallelCoordinates {
             .attr("y2", 0)
             .style("stroke", d => this.colorScale(d))
             .style("stroke-width", 3);
-        
+
         legendItems.append("text")
             .attr("x", 25)
             .attr("y", 0)
             .attr("dy", "0.35em")
             .style("font-size", "11px")
-            .style("fill", "#ffffff")   /* 文字色を白に */
+            .style("fill", "#ffffff")
             .text(d => d);
-        
-        // Legend title (also white)
+
+        // Legend title
         legend.append("text")
             .attr("x", 0)
             .attr("y", -10)
@@ -329,144 +298,103 @@ class ParallelCoordinates {
             .text("Population Size");
     }
 
-
     // Add tooltips
     addTooltips(selection) {
-    // Ensure we remove any prior .tooltip DIV so we don't stack multiples
-    d3.select("body").selectAll(".tooltip").remove();
+        // Remove any existing tooltips
+        d3.select("body").selectAll(".pc-tooltip").remove();
 
-    // Recreate the tooltip DIV just once
-    this.tooltip = d3.select("body")
-        .append("div")
-        .attr("class", "tooltip")   // must match your CSS
-        .style("position", "absolute")
-        .style("background", "rgba(249, 228, 5, 0.95)")
-        .style("color", "blue")
-        .style("padding", "12px")
-        .style("border-radius", "8px")
-        .style("font-size", "12px")
-        .style("pointer-events", "none")
-        .style("opacity", 0)
-        .style("box-shadow", "0 4px 12px rgba(200, 159, 159, 0.3)");
+        // Create tooltip
+        this.tooltip = d3.select("body")
+            .append("div")
+            .attr("class", "pc-tooltip")
+            .style("position", "absolute")
+            .style("background", "rgba(0, 0, 0, 0.9)")
+            .style("color", "#ffffff")
+            .style("padding", "10px")
+            .style("border-radius", "5px")
+            .style("font-size", "12px")
+            .style("pointer-events", "none")
+            .style("opacity", 0)
+            .style("box-shadow", "0 4px 8px rgba(0, 0, 0, 0.3)")
+            .style("z-index", "10000");
 
-    // Now wire up both background & foreground lines
-    selection
-        .on("mouseover", (event, d) => {
-        // Highlight the hovered line
-        d3.select(event.currentTarget)
-            .style("stroke-width", 4)
-            .style("opacity", 1);
-
-        // Fade out all the others:
-        selection.filter(p => p !== d)
-            .style("opacity", 0.1);
-
-        // Show tooltip
-        this.tooltip.transition()
-            .duration(200)
-            .style("opacity", 1);
-
-        const tooltipContent = `
-            <strong>${d.state} (${d.state_abbr})</strong><br/>
-            <strong>Region:</strong> ${d.population_tier}<br/>
-            <strong>Population:</strong> ${d3.format(",")(d.population)}<br/>
-            <strong>Total Assaults:</strong> ${d3.format(",")(d.total_assaults)}<br/>
-            <strong>Assault Rate:</strong> ${d3.format(".1f")(d.assault_rate_per_100k)}/100k<br/>
-            <strong>Firearm Usage:</strong> ${d3.format(".1f")(d.firearm_percentage)}%<br/>
-            <strong>Arrest Rate:</strong> ${d3.format(".1f")(d.arrest_rate)}%<br/>
-            <strong>Avg Victim Age:</strong> ${d3.format(".1f")(d.avg_victim_age)}<br/>
-            <strong>Years Analyzed:</strong> ${d.years_analyzed}
-        `;
-
-        this.tooltip.html(tooltipContent)
-            .style("left", (event.pageX + 10) + "px")
-            .style("top",  (event.pageY - 10) + "px");
-        })
-        .on("mouseout", (event, d) => {
-        // Restore all lines to normal stroke/opacity
+        // Add interactions
         selection
-            .style("stroke-width", d => this.currentFilters.states.includes(d.state) ? 2.5 : 1)
-            .style("opacity", d => {
-            // Dim out un‐highlighted states, keep highlighted ones at 0.8
-            return (this.currentFilters.states.length === 0 || this.currentFilters.states.includes(d.state))
-                ? 0.8 
-                : 0.3;
-            });
+            .style("cursor", "pointer")
+            .on("mouseover", (event, d) => {
+                // Highlight the hovered line
+                d3.select(event.currentTarget)
+                    .style("stroke-width", 4)
+                    .style("opacity", 1);
 
-        // Fade out tooltip
-        this.tooltip.transition()
-            .duration(500)
-            .style("opacity", 0);
-        });
+                // Fade out other lines
+                selection.filter(p => p !== d)
+                    .style("opacity", 0.1);
+
+                // Show tooltip
+                this.tooltip.transition()
+                    .duration(200)
+                    .style("opacity", 1);
+
+                const tooltipContent = `
+                    <strong>${d.state} (${d.state_abbr})</strong><br/>
+                    <strong>Population Tier:</strong> ${d.population_tier}<br/>
+                    <strong>Population:</strong> ${d3.format(",")(d.population)}<br/>
+                    <strong>Total Assaults:</strong> ${d3.format(",")(d.total_assaults)}<br/>
+                    <strong>Assault Rate:</strong> ${d3.format(".1f")(d.assault_rate_per_100k)}/100k<br/>
+                    <strong>Firearm Usage:</strong> ${d3.format(".1f")(d.firearm_percentage)}%<br/>
+                    <strong>Arrest Rate:</strong> ${d3.format(".1f")(d.arrest_rate)}%<br/>
+                    <strong>Avg Victim Age:</strong> ${d3.format(".1f")(d.avg_victim_age)}
+                `;
+
+                this.tooltip.html(tooltipContent)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 10) + "px");
+            })
+            .on("mouseout", (event, d) => {
+                // Restore all lines
+                selection
+                    .style("stroke-width", 2)
+                    .style("opacity", d => 
+                        this.currentFilters.states.length === 0 || 
+                        this.currentFilters.states.includes(d.state) ? 0.8 : 0.3
+                    );
+
+                // Hide tooltip
+                this.tooltip.transition()
+                    .duration(300)
+                    .style("opacity", 0);
+            });
     }
 
     // Filter functions
-    filterByPopulation(popTier) {
-        this.currentFilters.population = popTier;
-        this.applyFilters();
-    }
-
-    filterByCrimeRate(rateCategory) {
-        this.currentFilters.crimeRate = rateCategory;
-        this.applyFilters();
-    }
-
     highlightStates(stateList) {
         this.currentFilters.states = stateList;
-        this.draw();
-    }
-
-    applyFilters() {
-        this.filteredData = this.allData.filter(d => {
-            // Population filter
-            if (this.currentFilters.population !== 'all' && d.population_tier !== this.currentFilters.population) {
-                return false;
-            }
-            
-            // Crime rate filter
-            if (this.currentFilters.crimeRate !== 'all') {
-                const rate = d.assault_rate_per_100k;
-                if (this.currentFilters.crimeRate === 'high' && rate <= 350) return false;
-                if (this.currentFilters.crimeRate === 'medium' && (rate < 200 || rate > 350)) return false;
-                if (this.currentFilters.crimeRate === 'low' && rate >= 200) return false;
-            }
-            
-            return true;
-        });
-        
         this.draw();
     }
 
     resetFilters() {
         this.currentFilters = {
             population: 'all',
-            states: ['Louisiana', 'Alaska', 'Tennessee', 'Massachusetts'],
+            states: [],
             crimeRate: 'all'
         };
         this.filteredData = [...this.allData];
         this.draw();
     }
 
-    exportData() {
-        const csvContent = d3.csvFormat(this.filteredData);
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
+    // Show error message
+    showError(message) {
+        const svg = d3.select(`#${this.containerId}`);
+        svg.selectAll("*").remove();
         
-        link.setAttribute('href', url);
-        link.setAttribute('download', `state_crime_analysis_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    // Preset filter functions
-    showHighLowContrast() {
-        this.currentFilters.states = ['Louisiana', 'Alaska', 'Maine', 'Massachusetts'];
-        this.currentFilters.population = 'all';
-        this.filteredData = [...this.allData];
-        this.draw();
+        svg.append("text")
+            .attr("x", this.config.width / 2)
+            .attr("y", this.config.height / 2)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#e74c3c")
+            .attr("font-size", "16px")
+            .text("Error: " + message);
     }
 }
 
